@@ -1,0 +1,38 @@
+{
+    "$schema": "https://www.schemastore.org/package.json",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "vite build && node scripts/write-capacitor-index.mjs && cp ../build/manifest.webmanifest ../manifest.webmanifest",
+        "dev": "vite",
+        "mobile:sync": "npm run build && cap sync",
+        "mobile:open:ios": "cap open ios",
+        "mobile:open:android": "cap open android"
+    },
+    "devDependencies": {
+        "@tailwindcss/vite": "^4.0.0",
+        "@vitejs/plugin-vue": "^6.0.4",
+        "axios": "^1.11.0",
+        "concurrently": "^9.0.1",
+        "laravel-vite-plugin": "^2.0.0",
+        "tailwindcss": "^4.0.0",
+        "typescript": "^7.0.2",
+        "vite": "^7.0.7",
+        "vite-plugin-pwa": "^1.2.0",
+        "vue": "^3.5.27",
+        "vue-router": "^4.6.4"
+    },
+    "dependencies": {
+        "@capacitor/android": "^8.5.3",
+        "@capacitor/app": "^8.1.2",
+        "@capacitor/camera": "^8.2.6",
+        "@capacitor/cli": "^8.5.3",
+        "@capacitor/core": "^8.5.3",
+        "@capacitor/filesystem": "^8.1.5",
+        "@capacitor/ios": "^8.5.3",
+        "@capacitor/preferences": "^8.0.1",
+        "@capacitor/push-notifications": "^8.1.3",
+        "@zxing/browser": "^0.2.1",
+        "qrcode": "^1.5.4"
+    }
+}
