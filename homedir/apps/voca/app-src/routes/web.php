@@ -39,6 +39,7 @@ Route::prefix('api')->group(function () {
         Route::patch('ministries/{ministry:slug}', [TenantAdminController::class, 'updateMinistry']);
         Route::get('users', [TenantAdminController::class, 'users']);
         Route::post('users', [TenantAdminController::class, 'storeUser']);
+        Route::post('users/{membership}/invite', [TenantAdminController::class, 'invite'])->middleware('throttle:10,1');
         Route::patch('users/{membership}', [TenantAdminController::class, 'updateUser']);
         Route::delete('users/{membership}', [TenantAdminController::class, 'destroyUser']);
         Route::get('audits', [TenantAdminController::class, 'audits']);
@@ -67,6 +68,7 @@ Route::prefix('api')->group(function () {
         Route::post('organisations/{organisation}/domains/{domain}/verify', [PlatformOrganisationController::class, 'verifyDomain']);
         Route::post('organisations/{organisation}/impersonate/{user}', [PlatformOrganisationController::class, 'impersonate']);
         Route::post('organisations/{organisation}/users', [PlatformOrganisationController::class, 'storeUser']);
+        Route::post('organisations/{organisation}/users/{membership}/invite', [PlatformOrganisationController::class, 'invite'])->middleware('throttle:10,1');
         Route::patch('organisations/{organisation}/users/{membership}', [PlatformOrganisationController::class, 'updateUser']);
         Route::delete('organisations/{organisation}/users/{membership}', [PlatformOrganisationController::class, 'destroyUser']);
         Route::post('impersonation/stop', [PlatformOrganisationController::class, 'stopImpersonating']);
@@ -89,7 +91,9 @@ Route::prefix('api')->group(function () {
 Route::get('/media/{mediaAsset}', [MediaAssetController::class, 'show'])->name('media.assets.show');
 
 Route::prefix('auth')->group(function () {
-    Route::post('login', [AuthController::class, 'login'])->name('login.post');
+    Route::post('login', [AuthController::class, 'login'])->middleware('throttle:login')->name('login.post');
+    Route::post('forgot-password', [\App\Http\Controllers\PasswordController::class, 'forgot'])->middleware('throttle:5,1');
+    Route::post('reset-password', [\App\Http\Controllers\PasswordController::class, 'reset'])->middleware('throttle:10,1');
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('me', [AuthController::class, 'me']);
 });
@@ -156,6 +160,7 @@ Route::prefix('brackenfell')->group(function () {
 
 Route::get('/live-settings', [LiveStreamSettingController::class, 'publicShow'])->middleware('module:livestreaming');
 Route::view('/login', 'welcome')->name('login');
+Route::get('/reset-password/{token}', fn () => response()->view('welcome')->header('Referrer-Policy', 'no-referrer')->header('Cache-Control', 'no-store'))->name('password.reset');
 Route::view('/shop', 'welcome')->name('voca.shop');
 Route::redirect('/commerce', '/commerce/voca/shop/search')->name('voca.commerce');
 Route::get('/events', [PublicEventController::class, 'index'])->middleware('module:events');

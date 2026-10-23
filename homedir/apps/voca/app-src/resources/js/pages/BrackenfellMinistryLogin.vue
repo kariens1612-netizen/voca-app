@@ -49,6 +49,7 @@
                     Your account is not linked to this ministry. Please contact your admin.
                 </p>
 
+                <RouterLink to="/forgot-password">Forgot your password?</RouterLink>
                 <RouterLink class="button ghost" to="/brackenfell">Back to ministries</RouterLink>
             </div>
         </div>

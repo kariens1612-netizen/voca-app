@@ -8,7 +8,7 @@
         </section>
         <section v-else class="ticket-card">
             <div class="ticket-success">✓ Registration confirmed</div>
-            <p class="eyebrow">Voca Ministries event ticket</p>
+            <p class="eyebrow">VOCA event ticket</p>
             <h1>{{ registration.event_title }}</h1>
             <div class="ticket-details">
                 <p><strong>{{ registration.name }}</strong> · {{ registration.party_size }} {{ registration.party_size === 1 ? 'guest' : 'guests' }}</p>

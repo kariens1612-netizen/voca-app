@@ -4,7 +4,7 @@
             <div class="container">
                 <div class="section-header">
                     <p class="eyebrow">Live</p>
-                    <h1>Voca Ministries Live Stream</h1>
+                    <h1>VOCA Live Stream</h1>
                     <p class="section-subtitle">
                         OBS-ready streaming for services and special events, with a larger viewing experience and a
                         simple operator checklist for the media team.
@@ -26,7 +26,7 @@
                         <iframe
                             v-if="liveEmbedUrl"
                             :src="liveEmbedUrl"
-                            title="Voca Ministries Live Stream"
+                            title="VOCA Live Stream"
                             allow="fullscreen"
                             allowfullscreen
                             loading="lazy"

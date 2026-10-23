@@ -10,7 +10,7 @@
         <header class="site-header">
             <div class="header-top">
                 <div class="container topbar">
-                    <p>{{ brand.tagline || `${tenantName} digital command centre.` }}</p>
+                    <p>{{ brand.tagline || `${tenantName} community portal.` }}</p>
                     <a v-if="contact.email" :href="`mailto:${contact.email}`">{{ contact.email }}</a>
                 </div>
             </div>
@@ -54,7 +54,7 @@
                 <div>
                     <p class="footer-title">{{ tenantName }}</p>
                     <p class="footer-subtitle">{{ contact.address || brand.footer_text || 'Connected community' }}</p>
-                    <p class="footer-tech">Mobile-first operations, content, events, and member coordination.</p>
+                    <p class="footer-tech">{{ isVoca ? 'Informing, inspiring and influencing Africa through biblical truth and stories of hope.' : 'Updates, events and community connections.' }}</p>
                 </div>
                 <div class="footer-links">
                     <a v-if="contact.email" :href="`mailto:${contact.email}`">{{ contact.email }}</a>
@@ -90,12 +90,14 @@
 <script setup>
 import { computed } from 'vue';
 import { RouterLink, RouterView, useRoute } from 'vue-router';
+import { voca } from './data/voca';
 import { useTenant } from './composables/useTenant';
 import { useAuth } from './composables/useAuth';
 
 const route = useRoute();
 const { user: authUser, impersonation, load: loadAuth } = useAuth();
 const { tenant, brand, name: tenantName, permissions, moduleEnabled } = useTenant();
+const isVoca = computed(() => tenant.value?.slug === 'voca');
 const logoUrl = computed(() => brand.value.logo_url || '/images/voca/logo.png');
 const contact = computed(() => brand.value.contact || {});
 const stopImpersonating = async () => {
@@ -108,9 +110,14 @@ const navItems = computed(() => {
     if (brand.value.navigation?.length) return brand.value.navigation;
     return [
         { to: '/', label: 'Home', short: '01', match: '/' },
+        isVoca.value && { to: voca.loginUrl, label: 'Member Login', short: '02', external: true },
+        isVoca.value && { to: voca.registrationUrl, label: 'Register', short: '03', external: true },
+        isVoca.value && { to: 'https://voca.africa/about-us', label: 'About Us', short: '02', external: true },
+        isVoca.value && { to: 'https://voca.africa/affiliates', label: 'Members', short: '03', external: true },
+        isVoca.value && { to: '/international', label: 'Fellowship', short: '04', match: '/international' },
         { to: '/bible-study', label: 'Bible Study', short: '02', match: '/bible-study' },
         moduleEnabled('livestreaming') && { to: '/live', label: 'Live', short: '03', match: '/live' },
-        { to: '/login', label: 'Login', short: '04', match: '/login' },
+        { to: '/login', label: isVoca.value ? 'Team Portal' : 'Login', short: '04', match: '/login' },
         moduleEnabled('events') && { to: '/calendar', label: 'Events', short: '05', match: '/calendar' },
         moduleEnabled('inspiration') && { to: '/inspiration', label: 'Inspiration', short: '06', match: '/inspiration' },
         moduleEnabled('commerce') && { to: '/shop', label: 'Shop', short: '07', match: '/shop' },
@@ -120,8 +127,9 @@ const navItems = computed(() => {
     ].filter(Boolean);
 });
 
-const mobileRouterNavItems = computed(() => navItems.value.slice(0, 5));
-const mobileExternalNavItems = computed(() => []);
+const mobileNavItems = computed(() => navItems.value.slice(0, 5));
+const mobileRouterNavItems = computed(() => mobileNavItems.value.filter((item) => !item.external));
+const mobileExternalNavItems = computed(() => mobileNavItems.value.filter((item) => item.external));
 
 const isActive = (item) => {
     if (item.match === '/') {

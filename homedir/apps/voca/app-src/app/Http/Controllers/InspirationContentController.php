@@ -21,7 +21,7 @@ class InspirationContentController extends Controller
     public function memberIndex(Request $request)
     {
         abort_unless($request->user(), 401);
-        $ministryIds = $request->user()->is_superadmin
+        $ministryIds = $request->user()->canManageOrganisation($request->attributes->get('organisation')?->id)
             ? Ministry::query()->pluck('id')
             : $request->user()->memberships()->pluck('ministry_id');
 
@@ -39,7 +39,7 @@ class InspirationContentController extends Controller
     {
         abort_unless($request->user(), 401);
         $query = InspirationContent::query()->with(['ministry', 'media'])
-            ->when(! $request->user()->is_superadmin, function (Builder $query) use ($request) {
+            ->when(! $request->user()->canManageOrganisation($request->attributes->get('organisation')?->id), function (Builder $query) use ($request) {
                 $query->whereIn('ministry_id', $request->user()->memberships()
                     ->where(function (Builder $membership) {
                         $membership->where('role', 'admin')
@@ -188,7 +188,7 @@ class InspirationContentController extends Controller
     private function authorizeManage(Request $request, int $ministryId): void
     {
         abort_unless($request->user(), 401);
-        if ($request->user()->is_superadmin) return;
+        if ($request->user()->canManageOrganisation($request->attributes->get('organisation')?->id)) return;
         $allowed = $request->user()->memberships()->where('ministry_id', $ministryId)
             ->where(function (Builder $query) {
                 $query->where('role', 'admin')
@@ -202,7 +202,7 @@ class InspirationContentController extends Controller
         if (! $content->isVisibleNow()) return false;
         if ($content->audience === 'public') return true;
         $user = $request->user();
-        return $user && ($user->is_superadmin || $user->memberships()->where('ministry_id', $content->ministry_id)->exists());
+        return $user && ($user->canManageOrganisation($request->attributes->get('organisation')?->id) || $user->memberships()->where('ministry_id', $content->ministry_id)->exists());
     }
 
     private function syncUploads(Request $request, InspirationContent $content): void

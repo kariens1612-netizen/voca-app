@@ -4131,3 +4131,43 @@ button:disabled,
         font-size: 0.55rem;
     }
 }
+
+/* Community photography: consistent framing with room for faces on narrow screens. */
+.voca-card-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: 16px;
+}
+
+.voca-section-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 480px;
+    object-fit: cover;
+    object-position: center 40%;
+    border-radius: 24px;
+    margin: 0 0 28px;
+}
+
+.voca-study-image {
+    max-height: 320px;
+    margin-top: 24px;
+}
+
+.website-hero-visual > img {
+    position: absolute;
+    inset: 0;
+    object-position: 65% center;
+}
+
+@media (max-width: 640px) {
+    .voca-section-image {
+        max-height: none;
+        aspect-ratio: 16 / 9;
+        border-radius: 16px;
+    }
+}

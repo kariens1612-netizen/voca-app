@@ -2,92 +2,26 @@
     <section class="section">
         <div class="container">
             <div class="section-header">
-                <p class="eyebrow">Voca International</p>
-                <h1>Our global family of ministries</h1>
-                <p class="section-subtitle">
-                    Voca describes itself as a fresh wind of the Spirit reaching thirsty people across nations
-                    with family, love, and genuine acceptance.
-                </p>
+                <p class="eyebrow">VOCA Apostolic Fellowship</p>
+                <h1>Leaders connected for the good of Africa.</h1>
+                <p class="section-subtitle">A trusted relational space where leaders strengthen one another, collaborate across boundaries and help the Church flourish across Africa.</p>
             </div>
-
-            <div class="international-feature">
-                <img :src="worldMapUrl" alt="Voca international map" loading="lazy" />
-                <div class="international-feature-copy">
-                    <p class="spotlight-kicker">International</p>
-                    <h3>House churches and ministry points across regions</h3>
-                    <p>The app now uses the same international visual language as the main website, with a real map image pulled from the site.</p>
-                </div>
+            <img class="voca-section-image" :src="communityImages.leaders.src" :alt="communityImages.leaders.alt" width="1672" height="941" fetchpriority="high" />
+            <article class="card note"><h2>Relationship before strategy.</h2><p>Through prayer, conversation and shared mission, leaders find encouragement and practical connection with people serving in different contexts with the same heart for Africa.</p></article>
+            <div class="website-ministry-grid">
+                <article v-for="feature in features" :key="feature.title" class="website-ministry-card card"><h3>{{ feature.title }}</h3><p>{{ feature.description }}</p></article>
             </div>
-
-            <div class="international-grid">
-                <article v-for="region in regions" :key="region.name" class="country-card">
-                    <button class="accordion-trigger" @click="toggle(region.name)">
-                        <span>{{ region.name }}</span>
-                        <span class="accordion-icon">{{ open === region.name ? '−' : '+' }}</span>
-                    </button>
-                    <div class="country-card-body">
-                        <p class="country-card-status">
-                            {{ `${region.locations.length} listed House${region.locations.length > 1 ? 's' : ''} of Power / region point${region.locations.length > 1 ? 's' : ''}` }}
-                        </p>
-                        <div v-show="open === region.name" class="accordion-panel">
-                            <ul class="list">
-                                <li v-for="location in region.locations" :key="location">{{ location }}</li>
-                            </ul>
-                        </div>
-                    </div>
-                </article>
-            </div>
-
-            <div class="card note">
-                <h3>Need to add a new House of Power or regional point?</h3>
-                <p>
-                    The app is seeded with Houses of Power (also called House Churches) already listed on the website,
-                    including Brackenfell, Darling, Mitchell's Plain, Stellenberg, Chatsworth, Benin City, and online ministry. More can be added
-                    as the network grows.
-                </p>
-                <a class="button outline" href="https://www.voca.co.za/house-churches/" target="_blank" rel="noopener">View Houses of Power</a>
-            </div>
+            <div class="card note"><h2>Your voice belongs in the room.</h2><p>Join a growing network of churches, ministries and leaders committed to one voice, one continent and one purpose.</p><div class="website-hero-actions"><a class="button" href="https://voca.africa/register">Join the VOCA Network</a><a class="button outline" href="https://voca.africa/apostolic-fellowship">Explore Apostolic Fellowship</a></div></div>
         </div>
     </section>
 </template>
 
 <script setup>
-import { ref } from 'vue';
-
-const open = ref('');
-const worldMapUrl = '/images/voca/world-map.webp';
-
-const toggle = (name) => {
-    open.value = open.value === name ? '' : name;
-};
-
-const regions = [
-    {
-        name: 'South Africa',
-        locations: [
-            'Brackenfell',
-            'Brackenfell Media Online',
-            'Darling',
-            "Mitchell's Plain",
-            "Mitchell's Plain",
-            'Stellenberg',
-            'Stellenberg',
-            'Piketberg',
-            'Kuilsrivier',
-            'Loevenstein',
-            'Ridgeworth, Bellville',
-            'Du Noon',
-            'Chatsworth',
-            'Newfields / Hanover Park',
-        ],
-    },
-    {
-        name: 'Online',
-        locations: ['Brackenfell Media Online'],
-    },
-    {
-        name: 'Nigeria',
-        locations: ['Benin City, Nigeria'],
-    },
+import { communityImages } from '../data/voca';
+const features = [
+    { title: 'Trusted relationships', description: 'Connect with leaders who understand the privilege and pressure of ministry.' },
+    { title: 'Shared wisdom', description: 'Learn across generations, traditions, nations and ministry contexts.' },
+    { title: 'Collaborative mission', description: 'Connect through projects, initiatives and practical service across Africa.' },
+    { title: 'Strength for the journey', description: 'Receive prayer, encouragement and accountability for faithful, healthy leadership.' },
 ];
 </script>

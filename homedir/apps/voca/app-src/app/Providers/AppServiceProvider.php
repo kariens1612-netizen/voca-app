@@ -24,6 +24,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        \Illuminate\Auth\Notifications\ResetPassword::createUrlUsing(function ($user, $token) {
+            return request()->getSchemeAndHttpHost().'/reset-password/'.$token.'?'.http_build_query(['email' => $user->email]);
+        });
+        \Illuminate\Support\Facades\RateLimiter::for('login', function ($request) {
+            return [
+                \Illuminate\Cache\RateLimiting\Limit::perMinute(5)->by(strtolower((string) $request->input('email')).'|'.$request->ip()),
+                \Illuminate\Cache\RateLimiting\Limit::perMinute(30)->by($request->ip()),
+            ];
+        });
         Gate::define('admin', function ($user, $class, $roles) {
             if ($user?->is_superadmin) {
                 return true;

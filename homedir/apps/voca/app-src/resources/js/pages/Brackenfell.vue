@@ -3,11 +3,10 @@
         <div class="container">
             <div class="portal-hero">
                 <div>
-                    <p class="eyebrow">Brackenfell Portals</p>
+                    <p class="eyebrow">Ministry Portals</p>
                     <h1>Ministry login hubs</h1>
                     <p class="lead">
-                        Each ministry has a secure portal for members and leaders. Brackenfell is the local weekly
-                        gathering point of the movement.
+                        Each ministry has a secure portal for members and leaders to access updates, schedules and community tools.
                     </p>
                     <p class="portal-intro-note">
                         Media team members can sign in here to set up and manage the livestream for Rumble through the
@@ -15,14 +14,13 @@
                     </p>
                 </div>
                 <div class="portal-hero-card">
-                    <p class="portal-hero-label">Brackenfell gatherings</p>
-                    <p class="portal-hero-title">Sunday 09h30 · 1 Beatrix Street</p>
+                    <p class="portal-hero-label">VOCA Network</p>
+                    <p class="portal-hero-title">Faith · Truth · Unity · Impact</p>
                     <div class="portal-hero-image">
-                        <img :src="directorsImageUrl" alt="Voca international directors" loading="lazy" />
+                        <img :src="directorsImageUrl" alt="Ministry leadership" loading="lazy" />
                     </div>
                     <p>
-                        The website also lists Sunday celebrations at Upper Rooms Studio, 11 Carel Marincowitz,
-                        Brackenfell Industria, Cape Town.
+                        VOCA connects the Church, amplifies credible Christian voices, equips leaders and mobilises faith into action.
                     </p>
                 </div>
             </div>

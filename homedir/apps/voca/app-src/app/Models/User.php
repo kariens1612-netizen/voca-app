@@ -48,6 +48,22 @@ class User extends Authenticatable
         ];
     }
 
+    public function canAccessOrganisation(?int $organisationId): bool
+    {
+        if ($this->is_superadmin) return true;
+        if (! $organisationId) return false;
+        $membership = $this->organisationMemberships()->where('organisation_id', $organisationId)->first();
+        if ($membership) return $membership->status === 'active';
+        // Preserve access for legacy ministry accounts without an organisation membership.
+        return $this->memberships()->where('organisation_id', $organisationId)->exists();
+    }
+
+    public function canManageOrganisation(?int $organisationId): bool
+    {
+        return $this->is_superadmin || ($organisationId && $this->organisationMemberships()
+            ->where('organisation_id', $organisationId)->where('status', 'active')->whereIn('role', ['owner', 'admin'])->exists());
+    }
+
     public function memberships()
     {
         return $this->hasMany(MinistryMembership::class);

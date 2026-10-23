@@ -36,8 +36,8 @@
             </div>
             <div class="glass-card admin-panel">
                 <h2>Administrators and users</h2>
-                <form class="stack-form" @submit.prevent="inviteUser"><input v-model="invite.name" placeholder="Name" required /><input v-model="invite.email" type="email" placeholder="Email" required /><select v-model="invite.role"><option value="user">User</option><option value="admin">Admin</option><option value="owner">Owner</option></select><button class="button">Add user</button></form>
-                <ul class="admin-list"><li v-for="membership in users" :key="membership.id"><span><strong>{{ membership.user.name }}</strong><small>{{ membership.user.email }}</small></span><span>{{ membership.role }}</span></li></ul>
+                <form class="stack-form" @submit.prevent="inviteUser"><input v-model="invite.name" placeholder="Name" required /><input v-model="invite.email" type="email" placeholder="Email" required /><select v-model="invite.role"><option value="user">User</option><option value="admin">Admin</option><option v-if="permissions.manage_owners" value="owner">Owner</option></select><button class="button">Add user</button></form>
+                <ul class="admin-list"><li v-for="membership in users" :key="membership.id"><span><strong>{{ membership.user.name }}</strong><small>{{ membership.user.email }}</small></span><div class="button-row"><select :value="membership.role" :disabled="!permissions.manage_owners && membership.role === 'owner'" aria-label="Organisation role" @change="changeAccess(membership, { role: $event.target.value })"><option value="user">User</option><option value="admin">Admin</option><option v-if="permissions.manage_owners || membership.role === 'owner'" value="owner">Owner</option></select><span>{{ membership.status }}</span><button class="button ghost" :disabled="!permissions.manage_owners && membership.role === 'owner'" @click="changeAccess(membership, { status: membership.status === 'active' ? 'suspended' : 'active' })">{{ membership.status === 'active' ? 'Suspend' : 'Restore' }}</button><button class="button ghost" :disabled="membership.status !== 'active' || (!permissions.manage_owners && membership.role === 'owner')" @click="resendInvite(membership)">Send invitation</button><button class="button ghost" :disabled="!permissions.manage_owners && membership.role === 'owner'" @click="removeAccess(membership)">Remove access</button></div></li></ul>
             </div>
             <div class="glass-card admin-panel media-manager">
                 <div class="panel-heading">
@@ -80,7 +80,7 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue';
 import { useTenant } from '../composables/useTenant';
-const { tenant, load } = useTenant();
+const { tenant, permissions, load } = useTenant();
 const saving = ref(false); const message = ref(''); const ministries = ref([]); const users = ref([]);
 const mediaItems = ref([]); const mediaFilter = ref(''); const selectedMedia = ref(null); const mediaInput = ref(null); const mediaError = ref(''); const uploading = ref(false);
 const brand = reactive({ name: '', tagline: '', description: '', logo_url: '', thumbnail_url: '', rumble_url: '', primary_colour: '#1b4da3', secondary_colour: '#081224', contact: { email: '' }, social_links: {} });
@@ -94,7 +94,10 @@ const loadMedia = async () => { const response = await window.axios.get('/api/me
 const saveBrand = async () => { saving.value = true; try { await window.axios.patch('/api/admin/settings', { branding: brand, settings }); await load(true); notify('Branding updated.'); } finally { saving.value = false; } };
 const saveModules = async () => { saving.value = true; try { await window.axios.patch('/api/admin/modules', { modules }); await load(true); notify('Modules updated.'); } finally { saving.value = false; } };
 const createMinistry = async () => { await window.axios.post('/api/admin/ministries', newMinistry); newMinistry.name = ''; newMinistry.slug = ''; await refresh(); notify('Ministry created.'); };
-const inviteUser = async () => { await window.axios.post('/api/admin/users', invite); invite.name = ''; invite.email = ''; invite.role = 'user'; await refresh(); notify('User added.'); };
+const inviteUser = async () => { try { const { data } = await window.axios.post('/api/admin/users', invite); invite.name = ''; invite.email = ''; invite.role = 'user'; await refresh(); notify(data.invitation_sent ? 'Invitation sent.' : 'Access exists. A password link was sent recently; try resending shortly.'); } catch (e) { notify(e?.response?.data?.message || 'Unable to invite user.'); } };
+const changeAccess = async (membership, changes) => { try { await window.axios.patch(`/api/admin/users/${membership.id}`, changes); notify('Access updated.'); } catch (e) { notify(e?.response?.data?.message || 'Unable to update access.'); } finally { await refresh(); } };
+const resendInvite = async membership => { try { const { data } = await window.axios.post(`/api/admin/users/${membership.id}/invite`); notify(data.message); } catch (e) { notify(e?.response?.data?.message || 'Unable to send invitation.'); } };
+const removeAccess = async membership => { if (!window.confirm(`Remove ${membership.user.name}'s organisation access and ministry memberships?`)) return; try { await window.axios.delete(`/api/admin/users/${membership.id}`); await refresh(); notify('Access removed.'); } catch (e) { notify(e?.response?.data?.message || 'Unable to remove access.'); } };
 const selectMedia = (event) => {
     mediaError.value = '';
     selectedMedia.value = event.target.files?.[0] || null;

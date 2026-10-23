@@ -1,4 +1,5 @@
 import { computed, ref } from 'vue';
+import { voca } from '../data/voca';
 
 const tenant = ref(null);
 const permissions = ref({});
@@ -24,10 +25,24 @@ const load = async (force = false) => {
     if (loaded.value && !force) return tenant.value;
     if (pending && !force) return pending;
     pending = window.axios.get('/api/bootstrap').then(({ data }) => {
-        tenant.value = data.organisation;
+        const organisation = data.organisation;
+        if (organisation?.slug === 'voca') {
+            organisation.name = voca.name;
+            organisation.branding = {
+                ...organisation.branding,
+                name: voca.name,
+                subtitle: voca.subtitle,
+                tagline: voca.tagline,
+                footer_text: voca.statement,
+                logo_url: '/images/voca/africa-logo.png',
+                favicon_url: '/images/voca/africa-logo.png',
+                contact: { email: voca.email },
+            };
+        }
+        tenant.value = organisation;
         permissions.value = data.permissions || {};
         preferences.value = data.preferences || null;
-        applyBranding(data.organisation);
+        applyBranding(organisation);
         loaded.value = true;
         return data;
     }).finally(() => { pending = null; });

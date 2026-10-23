@@ -2,9 +2,10 @@
     <main class="inspiration-hub">
         <section class="inspiration-hero">
             <div class="container">
-                <p class="portal-tag">Voca Ministries</p>
+                <p class="portal-tag">VOCA</p>
                 <h1>Inspiration for your journey</h1>
                 <p>Scripture, prophetic insight and encouragement to strengthen your faith.</p>
+                <img class="voca-section-image voca-study-image" :src="communityImages.bible.src" :alt="communityImages.bible.alt" width="1672" height="941" loading="lazy" decoding="async" />
             </div>
         </section>
         <section class="section">
@@ -29,6 +30,7 @@
     </main>
 </template>
 <script setup>
+import { communityImages } from '../data/voca';
 import { computed, onMounted, ref } from 'vue';
 import ContentCard from '../components/ContentCard.vue';
 import { useAuth } from '../composables/useAuth';

@@ -13,7 +13,7 @@ class InspirationMediaController extends Controller
         $content = $media->content;
         $allowed = $content->isVisibleNow() && $content->audience === 'public';
         if (! $allowed && $request->user()) {
-            $allowed = $request->user()->is_superadmin
+            $allowed = $request->user()->canManageOrganisation($request->attributes->get('organisation')?->id)
                 || $request->user()->memberships()->where('ministry_id', $content->ministry_id)->exists();
         }
         abort_unless($allowed && $media->path && Storage::disk($media->disk)->exists($media->path), 404);

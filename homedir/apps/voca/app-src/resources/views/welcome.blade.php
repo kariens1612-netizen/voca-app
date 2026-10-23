@@ -3,7 +3,8 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Voca</title>
+        <title>VOCA — Voice of Christian Africa</title>
+        <meta name="description" content="Informing Africa. Inspiring Hope. Influencing Nations. Faith, truth, unity and impact across Africa.">
         <meta name="theme-color" content="#081224">
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <link rel="manifest" href="/manifest.webmanifest">

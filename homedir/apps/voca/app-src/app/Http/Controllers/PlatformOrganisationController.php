@@ -112,37 +112,63 @@ class PlatformOrganisationController extends Controller
             $user = User::firstOrCreate(['email' => strtolower($data['email'])], [
                 'name' => $data['name'], 'password' => Hash::make(Str::random(40)), 'is_superadmin' => false,
             ]);
-            return OrganisationMembership::updateOrCreate(
+            return OrganisationMembership::firstOrCreate(
                 ['organisation_id' => $organisation->id, 'user_id' => $user->id],
                 ['role' => $data['role'], 'status' => 'active']
             );
         });
+        abort_unless($membership->status === 'active', 422, 'Restore access before sending an invitation.');
+        $invitationStatus = app(\App\Services\AccountInvitation::class)->send(User::findOrFail($membership->user_id), $organisation);
         $this->audit->log($request, 'organisation.user_added', $membership, null, $membership->toArray());
-        return response()->json(['data' => $membership->load('user:id,name,email')], 201);
+        return response()->json(['data' => $membership->load('user:id,name,email'), 'invitation_sent' => $invitationStatus === \Illuminate\Support\Facades\Password::RESET_LINK_SENT], 201);
+    }
+
+    public function invite(Request $request, Organisation $organisation, OrganisationMembership $membership)
+    {
+        $this->authorizePlatform($request);
+        abort_unless($membership->organisation_id === $organisation->id, 404);
+        abort_unless($membership->status === 'active', 422, 'Restore access before sending an invitation.');
+        $status = app(\App\Services\AccountInvitation::class)->send($membership->user, $organisation);
+        return response()->json(['message' => $status === \Illuminate\Support\Facades\Password::RESET_LINK_SENT ? 'Invitation sent.' : 'A link was sent recently. Please wait before resending.']);
     }
 
     public function updateUser(Request $request, Organisation $organisation, OrganisationMembership $membership)
     {
-        $this->authorizePlatform($request);
-        abort_unless($membership->organisation_id === $organisation->id, 404);
-        $data = $request->validate(['role' => ['sometimes', Rule::in(['owner', 'admin', 'user'])], 'status' => ['sometimes', Rule::in(['active', 'suspended'])]]);
-        $before = $membership->toArray();
-        $membership->update($data);
-        $this->audit->log($request, 'organisation.user_updated', $membership, $before, $membership->toArray());
-        return response()->json(['data' => $membership->load('user:id,name,email')]);
+        return DB::transaction(function () use ($request, $membership, $organisation) {
+            Organisation::whereKey($organisation->id)->lockForUpdate()->firstOrFail();
+            $membership->refresh();
+            $this->authorizePlatform($request);
+            abort_unless($membership->organisation_id === $organisation->id, 404);
+            $data = $request->validate(['role' => ['sometimes', Rule::in(['owner', 'admin', 'user'])], 'status' => ['sometimes', Rule::in(['active', 'suspended'])]]);
+            abort_if($membership->role === 'owner' && $membership->status === 'active'
+                && (($data['role'] ?? 'owner') !== 'owner' || ($data['status'] ?? 'active') !== 'active')
+                && $organisation->memberships()->where('role', 'owner')->where('status', 'active')->count() <= 1,
+                422, 'The last active owner cannot be removed.');
+            $before = $membership->toArray();
+            $membership->update($data);
+            $this->audit->log($request, 'organisation.user_updated', $membership, $before, $membership->toArray());
+            return response()->json(['data' => $membership->load('user:id,name,email')]);
+        });
     }
 
     public function destroyUser(Request $request, Organisation $organisation, OrganisationMembership $membership)
     {
-        $this->authorizePlatform($request);
-        abort_unless($membership->organisation_id === $organisation->id, 404);
-        abort_if($membership->role === 'owner' && $membership->status === 'active'
-            && $organisation->memberships()->where('role', 'owner')->where('status', 'active')->count() <= 1,
-            422, 'The last active owner cannot be removed.');
-        $before = $membership->toArray();
-        $membership->delete();
-        $this->audit->log($request, 'organisation.user_removed', $organisation, $before, null);
-        return response()->noContent();
+        return DB::transaction(function () use ($request, $membership, $organisation) {
+            Organisation::whereKey($organisation->id)->lockForUpdate()->firstOrFail();
+            $membership->refresh();
+            $this->authorizePlatform($request);
+            abort_unless($membership->organisation_id === $organisation->id, 404);
+            abort_if($membership->role === 'owner' && $membership->status === 'active'
+                && $organisation->memberships()->where('role', 'owner')->where('status', 'active')->count() <= 1,
+                422, 'The last active owner cannot be removed.');
+            $before = $membership->toArray();
+            DB::transaction(function () use ($membership) {
+                \App\Models\MinistryMembership::withoutGlobalScopes()->where('organisation_id', $membership->organisation_id)->where('user_id', $membership->user_id)->delete();
+                $membership->delete();
+            });
+            $this->audit->log($request, 'organisation.user_removed', $organisation, $before, null);
+            return response()->noContent();
+        });
     }
 
     public function stopImpersonating(Request $request)

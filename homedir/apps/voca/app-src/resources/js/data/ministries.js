@@ -1,3 +1,5 @@
+import { communityImages } from './voca';
+
 export const ministries = [
     {
         slug: 'house-churches',
@@ -29,7 +31,7 @@ export const ministries = [
         slug: 'new-hope',
         title: 'New Hope',
         description: 'Upliftment and outreach projects bringing practical hope and kingdom impact to people in need.',
-        bannerImage: '/images/voca/new-hope.png',
+        bannerImage: communityImages.volunteers.src,
     },
     {
         slug: 'prophetic-council',
@@ -47,31 +49,31 @@ export const ministries = [
         slug: 'power-kids',
         title: 'Power Kids',
         description: 'Helping children encounter God, grow in faith, and be equipped in a loving kingdom environment.',
-        bannerImage: '/images/ministries/youth.png',
+        bannerImage: communityImages.youth.src,
     },
     {
         slug: 'power-woman',
         title: 'Power Woman',
         description: 'Empowering women of God to walk in their calling and reach their God-given destiny.',
-        bannerImage: '/images/voca/power-woman.png',
+        bannerImage: communityImages.women.src,
     },
     {
         slug: 'intercession',
         title: 'Intercession',
         description: 'Seeking God’s face together to change circumstances through prayer and kingdom alignment.',
-        bannerImage: '/images/voca/intercession.png',
+        bannerImage: communityImages.bible.src,
     },
     {
         slug: 'kingdom-business',
         title: 'Kingdom Business',
         description: 'Seeing believers set free financially and equipped to influence the mountain of business from God’s perspective.',
-        bannerImage: '/images/voca/kingdom-business.png',
+        bannerImage: communityImages.business.src,
     },
     {
         slug: 'power-media',
         title: 'Power Media',
         description: 'Helping believers take back the media mountain with creative communication and ministry media support.',
-        bannerImage: '/images/ministries/media.png',
+        bannerImage: communityImages.tv.src,
     },
     {
         slug: 'ministry-of-the-word',
@@ -89,6 +91,6 @@ export const ministries = [
         slug: 'bible-college',
         title: 'Voca Bible College',
         description: 'Online Bible study and ministry training, featuring the Fanned Into Flame 30-day discipleship journey.',
-        bannerImage: '/images/voca/bible-college.png',
+        bannerImage: communityImages.bible.src,
     },
 ];

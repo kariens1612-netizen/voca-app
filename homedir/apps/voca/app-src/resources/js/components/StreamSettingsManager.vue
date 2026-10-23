@@ -60,7 +60,7 @@
 
             <aside class="stream-settings-preview">
                 <p class="portal-tag">Live page preview</p>
-                <h3>{{ form.stream_title || 'Voca Ministries Live Stream' }}</h3>
+                <h3>{{ form.stream_title || 'VOCA Live Stream' }}</h3>
                 <div class="stream-settings-meta">
                     <span>{{ form.platform || 'Rumble' }}</span>
                     <span>{{ form.status || 'Stand by' }}</span>
@@ -112,7 +112,7 @@ const form = reactive({
     embed_url: '',
     watch_url: 'https://rumble.com/v7cy4ji-kingdom-eyes-kingdom-victory.html',
     api_key: '',
-    stream_title: 'Voca Ministries Live Stream',
+    stream_title: 'VOCA Live Stream',
     notes: '',
 });
 
@@ -123,7 +123,7 @@ const normalize = (payload = {}) => {
     form.embed_url = payload.embed_url || '';
     form.watch_url = payload.watch_url || 'https://rumble.com/v7cy4ji-kingdom-eyes-kingdom-victory.html';
     form.api_key = '';
-    form.stream_title = payload.stream_title || 'Voca Ministries Live Stream';
+    form.stream_title = payload.stream_title || 'VOCA Live Stream';
     form.notes = payload.notes || '';
     meta.value = {
         updated_at: payload.updated_at || '',

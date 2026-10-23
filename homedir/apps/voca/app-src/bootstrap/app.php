@@ -15,6 +15,9 @@ $app = Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->prependToGroup('web', \App\Http\Middleware\ResolveOrganisation::class);
         $middleware->prependToGroup('api', \App\Http\Middleware\ResolveOrganisation::class);
+        $middleware->appendToGroup('web', \Illuminate\Session\Middleware\AuthenticateSession::class);
+        $middleware->appendToGroup('web', \App\Http\Middleware\EnsureTenantAccess::class);
+        $middleware->appendToGroup('api', \App\Http\Middleware\EnsureTenantAccess::class);
         $middleware->alias([
             'ministry.role' => \App\Http\Middleware\EnsureMinistryRole::class,
             'organisation.admin' => \App\Http\Middleware\EnsureOrganisationAdmin::class,

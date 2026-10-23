@@ -33,6 +33,10 @@ class MinistryMemberController extends Controller
 
         $query = User::query()
             ->select(['id', 'name', 'email'])
+            ->where(function ($query) use ($ministry) {
+                $query->whereHas('organisationMemberships', fn ($q) => $q->where('organisation_id', $ministry->organisation_id)->where('status', 'active'))
+                    ->orWhereHas('memberships', fn ($q) => $q->where('organisation_id', $ministry->organisation_id));
+            })
             ->whereDoesntHave('memberships', function ($builder) use ($ministry) {
                 $builder->where('ministry_id', $ministry->id);
             });
@@ -62,6 +66,8 @@ class MinistryMemberController extends Controller
 
         $roleSlug = $data['role'] ?? 'member';
         $roleRecord = Role::query()->where('slug', $roleSlug)->first();
+
+        abort_unless(User::findOrFail($data['user_id'])->canAccessOrganisation($ministry->organisation_id), 404);
 
         $membership = MinistryMembership::updateOrCreate(
             [
@@ -120,6 +126,7 @@ class MinistryMemberController extends Controller
         });
 
         $membership->loadMissing(['user:id,name,email', 'roleRecord']);
+        app(\App\Services\AccountInvitation::class)->send($membership->user, $request->attributes->get('organisation'));
 
         return response()->json([
             ...$this->payload($membership),
@@ -248,6 +255,7 @@ class MinistryMemberController extends Controller
                 ->where('user_id', $user->id)
                 ->first();
 
+            $sendInvitation = ! $membership;
             if (! $membership) {
                 MinistryMembership::create([
                     'ministry_id' => $ministry->id,
@@ -262,6 +270,7 @@ class MinistryMemberController extends Controller
                 $membership->save();
                 $updatedMemberships++;
             }
+            if ($sendInvitation) app(\App\Services\AccountInvitation::class)->send($user, $request->attributes->get('organisation'));
         }
 
         fclose($handle);

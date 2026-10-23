@@ -1,6 +1,8 @@
 import { computed, ref } from 'vue';
+import { useTenant } from './useTenant';
 
 const user = ref(null);
+const organisationRole = ref(null);
 const memberships = ref([]);
 const loaded = ref(false);
 const loading = ref(false);
@@ -8,45 +10,44 @@ const impersonation = ref(null);
 
 const normalize = (payload) => {
     user.value = payload?.user || null;
+    organisationRole.value = payload?.organisation_role || null;
     memberships.value = payload?.memberships || [];
     impersonation.value = payload?.impersonation || null;
     loaded.value = true;
 };
 
-const load = async () => {
-    if (loading.value) {
-        return;
-    }
-
+let pendingLoad;
+const load = () => {
+    if (pendingLoad) return pendingLoad;
     loading.value = true;
-    try {
-        const response = await window.axios.get('/auth/me');
-        normalize(response.data);
-    } catch (error) {
-        normalize({ user: null, memberships: [] });
-    } finally {
-        loading.value = false;
-    }
+    pendingLoad = window.axios.get('/auth/me')
+        .then(({ data }) => normalize(data))
+        .catch(() => normalize({ user: null, memberships: [] }))
+        .finally(() => { loading.value = false; pendingLoad = null; });
+    return pendingLoad;
 };
 
 const login = async (payload) => {
     const response = await window.axios.post('/auth/login', payload);
     normalize(response.data);
+    await useTenant().load(true);
     return response.data;
 };
 
 const logout = async () => {
     await window.axios.post('/auth/logout');
     normalize({ user: null, memberships: [] });
+    await useTenant().load(true);
 };
 
 const hasRole = (entity, slug, role = 'user') => {
-    if (user.value?.is_superadmin) {
+    if (user.value?.is_superadmin || ['owner', 'admin'].includes(organisationRole.value)) {
         return true;
     }
 
     const membership = memberships.value.find(
-        (item) => item.entity === entity && item.slug === slug
+        // Memberships are already scoped to the current organisation by the backend.
+        (item) => item.slug === slug
     );
 
     if (!membership) {
@@ -61,12 +62,14 @@ const hasRole = (entity, slug, role = 'user') => {
         return membership.role === 'admin' || membership.role === 'leader';
     }
 
+    if (role === 'member') return ['admin', 'leader', 'member'].includes(membership.role);
     return true;
 };
 
 export function useAuth() {
     return {
         user,
+        organisationRole,
         memberships,
         loaded,
         loading,

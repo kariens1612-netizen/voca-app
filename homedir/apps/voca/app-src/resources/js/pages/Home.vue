@@ -3,70 +3,73 @@
         <section class="website-hero">
             <div class="container website-hero-grid">
                 <div class="website-hero-copy">
-                    <p class="eyebrow">Voca Ministries</p>
-                    <h1>In His Presence Preparing His Bride</h1>
-                    <p class="lead">
-                        A mobile-first home page inspired directly by the Voca website, built around worship,
-                        community, prayer, and kingdom equipping.
-                    </p>
-                    <p class="website-hero-quote">
-                        Experience the warm embrace of Family, Love, and Genuine Acceptance.
-                    </p>
+                    <p class="eyebrow">{{ voca.subtitle }}</p>
+                    <h1>Africa Needs A Trusted Voice.</h1>
+                    <p class="lead">{{ voca.tagline }}</p>
+                    <p>Informing, Inspiring, and Influencing Africa with a voice rooted in Biblical truth, covenant unity, and continental impact.</p>
+                    <p>Connect with likeminded believers in ministry, business and life through an Apostolic Resource Centre serving Africa.</p>
+                    <p class="website-hero-quote">Africa’s story deserves to be told with excellence.</p>
                     <div class="website-hero-actions">
-                        <RouterLink class="button" to="/brackenfell">Voca Brackenfell</RouterLink>
-                        <RouterLink class="button" to="/bible-study">Bible Study</RouterLink>
-                        <RouterLink class="button outline" to="/international">International Ministries</RouterLink>
-                        <a class="button ghost" href="#what-we-do">What We Do</a>
+                        <a class="button" :href="voca.loginUrl">Member Login</a>
+                        <a class="button outline" :href="voca.registrationUrl">Register</a>
+                        <a class="button outline" href="https://voca.africa/affiliates">Become a Member</a>
+                        <RouterLink class="button ghost" to="/login">Ministry Team Portal</RouterLink>
                     </div>
-                    <div class="website-hero-tags">
-                        <span>Sunday 09H30</span>
-                        <span>1 Beatrix Street</span>
-                        <span>Brackenfell Cape Town</span>
-                    </div>
+                    <div class="website-hero-tags"><span v-for="pillar in pillars" :key="pillar.title">{{ pillar.title }}</span></div>
                 </div>
-
                 <article class="website-hero-visual">
-                    <img :src="heroImageUrl" alt="Voca worship gathering" loading="eager" />
+                    <img :src="heroImageUrl" :alt="communityImages.community.alt" loading="eager" fetchpriority="high" />
                     <div class="website-hero-overlay">
-                        <span class="card-label">Welcome Home</span>
-                        <h3>Love, healing, encouragement, and the presence of God.</h3>
-                        <p>
-                            Voca is a place where people are empowered and equipped for kingdom ministry.
-                        </p>
+                        <span class="card-label">{{ voca.subtitle }}</span>
+                        <h3>{{ voca.statement }}</h3>
+                        <p>Truth builds trust, hope transforms communities, and informed people shape nations.</p>
                     </div>
                 </article>
             </div>
         </section>
-
-        <section class="home-study-tabs">
-            <div class="container home-study-tabs-inner">
-                <RouterLink class="home-study-tab active" to="/bible-study">
-                    <span>Bible Study</span>
-                    <strong>Read Scripture</strong>
-                </RouterLink>
-                <RouterLink class="home-study-tab" to="/ministries/bible-college">
-                    <span>Bible College</span>
-                    <strong>Fanned Into Flame</strong>
-                </RouterLink>
-                <a class="home-study-tab" href="/courses/fanned-into-flame.html" target="_blank" rel="noreferrer">
-                    <span>30-Day Course</span>
-                    <strong>Open Study</strong>
-                </a>
+        <section id="pillars" class="section section-tight">
+            <div class="container">
+                <div class="section-header centered"><p class="eyebrow">Our Identity</p><h2>The Four Pillars</h2><p class="section-subtitle">Faith, Truth, Unity and Impact are four corners of one structure. Each is essential to the VOCA platform.</p></div>
+                <div class="website-ministry-grid">
+                    <article v-for="pillar in pillars" :key="pillar.title" class="website-ministry-card card"><img class="voca-card-image" :src="pillar.image.src" :alt="pillar.image.alt" width="1672" height="941" loading="lazy" decoding="async" /><h3>{{ pillar.title }}</h3><p>{{ pillar.description }}</p></article>
+                </div>
+                <a class="button outline" href="https://voca.africa/about-us#pillars">Explore Our Values</a>
             </div>
         </section>
-
+        <section id="about" class="section">
+            <div class="container">
+                <div class="section-header"><p class="eyebrow">About VOCA</p><h2>{{ voca.statement }}</h2><p class="section-subtitle">VOCA exists to inform, inspire and influence Africa with a voice rooted in faith, anchored in truth and committed to unity.</p></div>
+                <div class="website-support-grid">
+                    <article class="website-support-card card"><h3>Our Vision</h3><p>{{ voca.vision }}</p></article>
+                    <article class="website-support-card card"><h3>Our Mission</h3><p>{{ voca.mission }}</p></article>
+                </div>
+                <a class="button outline" href="https://voca.africa/about-us">About Us</a>
+            </div>
+        </section>
+        <section id="media" class="section section-tight">
+            <div class="container">
+                <div class="section-header"><p class="eyebrow">Media and Services</p><h2>VOCA Platform</h2></div>
+                <div class="website-ministry-grid">
+                    <article v-for="platform in platforms" :key="platform.title" class="website-ministry-card card">
+                        <img class="voca-card-image" :src="platform.image.src" :alt="platform.image.alt" width="1672" height="941" loading="lazy" decoding="async" /><h3>{{ platform.title }}</h3><p>{{ platform.description }}</p>
+                        <RouterLink v-if="platform.to" class="button outline" :to="platform.to">Explore {{ platform.title }}</RouterLink>
+                        <a v-else class="button outline" :href="platform.url">Explore {{ platform.title }}</a>
+                    </article>
+                </div>
+            </div>
+        </section>
         <section class="section section-tight">
             <div class="container">
                 <div class="section-header">
-                    <p class="eyebrow">Ministry Family</p>
-                    <h2>One home page for every ministry.</h2>
+                    <p class="eyebrow">VOCA Network</p>
+                    <h2>Connect with the VOCA ministry network.</h2>
                     <p class="section-subtitle">
-                        See who is part of the Voca family, open their live broadcast, and connect with them on
+                        See who is part of the VOCA network, open their live broadcast, and connect with them on
                         their social platforms.
                     </p>
                 </div>
 
-                <p v-if="directoryLoading" class="public-directory-empty">Loading ministry family...</p>
+                <p v-if="directoryLoading" class="public-directory-empty">Loading ministries...</p>
 
                 <div v-else-if="publicMinistries.length">
                     <div v-if="publicStreams.length" class="public-stream-grid">
@@ -166,7 +169,7 @@
                                     rel="noopener"
                                     @click="handleLiveClick($event, ministry)"
                                 >
-                                    {{ ministry.live.is_live ? 'Watch live on Rumble' : 'Open Rumble' }}
+                                    {{ ministry.live.is_live ? 'Watch live' : 'Open broadcast' }}
                                 </a>
                             </div>
 
@@ -190,155 +193,18 @@
             </div>
         </section>
 
-        <section class="section section-tight">
-            <div class="container">
-                <div class="section-header centered">
-                    <p class="eyebrow">Our Home</p>
-                    <h2>The same core movement, rebuilt for a cleaner mobile experience.</h2>
-                </div>
-
-                <div class="website-pillars">
-                    <article class="website-pillar card">
-                        <img
-                            :src="brackenfellImageUrl"
-                            alt="A diverse team representing Voca Brackenfell"
-                            loading="lazy"
-                        />
-                        <div class="website-pillar-body">
-                            <p class="card-label">Voca Brackenfell</p>
-                            <h3>Preparing the Bride to be empowered and equipped.</h3>
-                            <p>
-                                Join the local expression of Voca in Brackenfell for worship, ministry, family,
-                                and kingdom activation.
-                            </p>
-                            <RouterLink class="button" to="/brackenfell">Open Brackenfell</RouterLink>
-                        </div>
-                    </article>
-
-                    <article class="website-pillar card">
-                        <img :src="worldMapUrl" alt="Voca International Ministries" loading="lazy" />
-                        <div class="website-pillar-body">
-                            <p class="card-label">Voca International Ministries</p>
-                            <h3>Fresh wind, new wine, and new wineskins for the nations.</h3>
-                            <p>
-                                There is a fresh wind of the Spirit of God blowing across the nations, reaching all who
-                                are thirsty for truth and Spirit.
-                            </p>
-                            <RouterLink class="button outline" to="/international">Explore International</RouterLink>
-                        </div>
-                    </article>
-                </div>
-            </div>
-        </section>
-
-        <section class="section">
-            <div class="container">
-                <div class="website-sunday card">
-                    <div class="website-sunday-media">
-                        <img :src="sundayServiceImageUrl" alt="Sunday service at Voca" loading="lazy" />
-                    </div>
-                    <div class="website-sunday-copy">
-                        <p class="eyebrow">Sunday Gathering</p>
-                        <h2>Join us on Sundays 09H30 at Beatrix Street, Brackenfell Industria, Brackenfell Cape Town</h2>
-                        <p>
-                            Gather with us for worship, the Word, prayer, healing, and a family-centered church
-                            experience.
-                        </p>
-                        <div class="website-sunday-actions">
-                            <RouterLink class="button" to="/live">Watch Live</RouterLink>
-                            <a class="button ghost" href="#visit">View location</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="section section-tight">
-            <div class="container">
-                <div class="website-support-grid">
-                    <article class="website-support-card card">
-                        <div class="website-support-image">
-                            <img :src="houseChurchImageUrl" alt="Houses of Power (House Churches)" loading="lazy" />
-                        </div>
-                        <p class="card-label">Houses of Power · House Churches</p>
-                        <h3>Family-sized spaces for discipleship, care, and community.</h3>
-                        <p>
-                            House churches create room for deeper connection, real support, and kingdom life shared in
-                            homes.
-                        </p>
-                        <RouterLink class="button outline" to="/ministries/house-churches">Find a House of Power</RouterLink>
-                    </article>
-
-                    <article class="website-support-card card">
-                        <div class="website-support-image">
-                            <img :src="prayerImageUrl" alt="Need prayer" loading="lazy" />
-                        </div>
-                        <p class="card-label">Need Prayer?</p>
-                        <h3>We will stand with you in prayer.</h3>
-                        <p>
-                            If you need love, healing, encouragement, or breakthrough, this community believes in the
-                            power of prayer and God’s presence.
-                        </p>
-                        <RouterLink class="button" to="/ministries/healing-prayer">Request Prayer</RouterLink>
-                    </article>
-                </div>
-            </div>
-        </section>
-
         <section id="what-we-do" class="section">
             <div class="container">
-                <div class="section-header">
-                    <p class="eyebrow">What We Do</p>
-                    <h2>Ministries and expressions from the Voca movement.</h2>
-                    <p class="section-subtitle">
-                        Explore all the ways Voca serves, equips, gathers, and supports people.
-                    </p>
-                </div>
-
+                <div class="section-header"><p class="eyebrow">Connect and Participate</p><h2>Your place in the VOCA network.</h2></div>
                 <div class="website-ministry-grid">
-                    <RouterLink
-                        v-for="ministry in ministries"
-                        :key="ministry.slug"
-                        class="website-ministry-card card card-link"
-                        :to="`/ministries/${ministry.slug}`"
-                    >
-                        <div v-if="ministry.bannerImage" class="website-ministry-media">
-                            <img :src="ministry.bannerImage" :alt="ministry.title" loading="lazy" />
-                        </div>
-                        <p class="card-label">Ministry</p>
-                        <h3>{{ ministry.title }}</h3>
-                        <p>{{ ministry.description }}</p>
-                        <span class="ministry-card-link">Open details</span>
-                    </RouterLink>
+                    <a v-for="pathway in pathways" :key="pathway.title" class="website-ministry-card card card-link" :href="pathway.url"><img class="voca-card-image" :src="pathway.image.src" :alt="pathway.image.alt" width="1672" height="941" loading="lazy" decoding="async" /><h3>{{ pathway.title }}</h3><p>{{ pathway.description }}</p><span class="ministry-card-link">Explore {{ pathway.title }}</span></a>
                 </div>
             </div>
         </section>
-
-        <section id="visit" class="section alt">
+        <section id="contact" class="section alt">
             <div class="container">
-                <div class="website-visit-grid">
-                    <div class="website-visit-copy">
-                        <p class="eyebrow">Visit Us</p>
-                        <h2>Find Voca in Brackenfell.</h2>
-                        <p class="section-subtitle">
-                            1 Beatrix Street, Brackenfell. If you are looking for a church family rooted in God’s
-                            presence, this is where to start.
-                        </p>
-                        <div class="website-visit-list">
-                            <span>Sunday celebration at 09H30</span>
-                            <span>Prayer, worship, Word, and ministry</span>
-                            <span>Family, love, and genuine acceptance</span>
-                        </div>
-                    </div>
-
-                    <div class="calendar-frame website-map-frame">
-                        <iframe
-                            src="https://maps.google.com/maps?q=1%20Beatrix%20Street%2C%20Brackenfell&t=m&z=10&output=embed&iwloc=near"
-                            title="1 Beatrix Street, Brackenfell"
-                            loading="lazy"
-                        ></iframe>
-                    </div>
-                </div>
+                <div class="section-header"><p class="eyebrow">Stay Connected</p><h2>Join the Voice of Christian Africa</h2><p class="section-subtitle">Connect your ministry, church, organization, business or individual profile to the VOCA network.</p></div>
+                <div class="website-hero-actions"><a class="button" href="https://voca.africa/register">Register</a><a class="button outline" :href="`mailto:${voca.email}`">{{ voca.email }}</a></div>
             </div>
         </section>
     </div>
@@ -347,15 +213,10 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 import { RouterLink } from 'vue-router';
-import { ministries } from '../data/ministries';
+import { voca, pillars, platforms, pathways, communityImages } from '../data/voca';
 
-const heroImageUrl = '/images/voca/hero.jpeg';
-const brackenfellImageUrl = '/images/voca/leaders.jpg';
-const worldMapUrl = '/images/voca/world-map.webp';
-const sundayServiceImageUrl = '/images/voca/sunday-service.jpeg';
-const houseChurchImageUrl = '/images/voca/power-team.png';
-const prayerImageUrl = '/images/voca/intercession.jpg';
-const fallbackMinistryImageUrl = '/images/voca/brackenfell-community.jpg';
+const heroImageUrl = communityImages.community.src;
+const fallbackMinistryImageUrl = communityImages.leaders.src;
 
 const publicMinistries = ref([]);
 const directoryLoading = ref(true);

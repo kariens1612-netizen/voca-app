@@ -15,6 +15,8 @@
                 </RouterLink>
             </div>
 
+            <img class="voca-section-image voca-study-image" :src="communityImages.bible.src" :alt="communityImages.bible.alt" width="1672" height="941" loading="lazy" decoding="async" />
+
             <div class="bible-reader-layout">
                 <aside class="bible-reader-controls">
                     <label>
@@ -79,6 +81,7 @@
 </template>
 
 <script setup>
+import { communityImages } from '../data/voca';
 import { computed, onMounted, ref, watch } from 'vue';
 import { RouterLink } from 'vue-router';
 

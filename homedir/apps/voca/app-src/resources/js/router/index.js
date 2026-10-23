@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import AccountAccess from '../pages/AccountAccess.vue';
 import Home from '../pages/Home.vue';
 import International from '../pages/International.vue';
 import MinistryDetail from '../pages/MinistryDetail.vue';
@@ -40,7 +41,10 @@ const routes = [
     { path: '/inspiration/:slug', name: 'inspiration-detail', component: InspirationDetail },
     { path: '/international', name: 'international', component: International },
     { path: '/ministries/:slug', name: 'ministry-detail', component: MinistryDetail },
-    { path: '/login', name: 'login', component: Brackenfell, alias: '/brackenfell' },
+    { path: '/login', name: 'login', component: AccountAccess },
+    { path: '/forgot-password', name: 'forgot-password', component: AccountAccess },
+    { path: '/reset-password/:token', name: 'reset-password', component: AccountAccess },
+    { path: '/brackenfell', name: 'ministry-hubs', component: Brackenfell },
     {
         path: '/ministries/:slug/login',
         alias: '/brackenfell/ministries/:slug/login',
@@ -128,18 +132,18 @@ router.beforeEach(async (to) => {
 
     if (to.meta?.organisationAdminOnly) {
         const tenant = useTenant();
-        await tenant.load();
+        await tenant.load(true);
         return tenant.permissions.value.manage_organisation ? true : { name: 'login', query: { denied: '1' } };
     }
 
     if (to.meta?.financeOnly) {
         const tenant = useTenant();
-        await tenant.load();
+        await tenant.load(true);
         return tenant.permissions.value.finance_access ? true : { name: 'login', query: { denied: '1' } };
     }
 
     if (to.meta?.leaderOnly) {
-        const isLeader = auth.memberships.value.some((item) => ['leader', 'admin'].includes(item.role));
+        const isLeader = ['owner', 'admin'].includes(auth.organisationRole.value) || auth.memberships.value.some((item) => ['leader', 'admin'].includes(item.role));
         return isLeader || auth.user.value?.is_superadmin ? true : { name: 'login', query: { denied: '1' } };
     }
 

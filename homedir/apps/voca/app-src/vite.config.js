@@ -33,9 +33,9 @@ export default defineConfig({
                 ],
             },
             manifest: {
-                name: 'Voca Brackenfell',
-                short_name: 'Voca',
-                description: 'Voca app for Brackenfell and international satellites.',
+                name: 'VOCA — Voice of Christian Africa',
+                short_name: 'VOCA',
+                description: 'Informing Africa. Inspiring Hope. Influencing Nations. Ministry updates, media, events and community access.',
                 scope: '/',
                 theme_color: '#0b2b4b',
                 background_color: '#f6f8fb',

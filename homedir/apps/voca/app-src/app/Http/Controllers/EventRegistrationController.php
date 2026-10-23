@@ -170,7 +170,7 @@ class EventRegistrationController extends Controller
     private function authorizeLeader(Request $request): void
     {
         $user = $request->user();
-        $allowed = $user?->is_superadmin || $user?->memberships()
+        $allowed = $user?->is_superadmin || $user?->organisationMemberships()->where('organisation_id', $request->attributes->get('organisation')?->id)->where('status', 'active')->whereIn('role', ['owner', 'admin'])->exists() || $user?->memberships()
             ->where(function ($query) {
                 $query->whereIn('role', ['leader', 'admin'])
                     ->orWhereHas('roleRecord', fn ($role) => $role->whereIn('slug', ['leader', 'admin']));

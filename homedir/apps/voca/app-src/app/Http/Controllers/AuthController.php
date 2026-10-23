@@ -14,10 +14,18 @@ class AuthController extends Controller
             'password' => ['required'],
         ]);
 
+        $credentials['email'] = strtolower(trim($credentials['email']));
+
         if (! Auth::attempt($credentials)) {
             return response()->json(['message' => 'Invalid credentials.'], 422);
         }
 
+        if (! $request->user()->canAccessOrganisation($request->attributes->get('organisation')?->id)) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            return response()->json(['message' => 'Your account does not have active access to this organisation.'], 403);
+        }
         $request->session()->regenerate();
 
         return response()->json($this->payload($request->user(), $request));
@@ -49,6 +57,7 @@ class AuthController extends Controller
         $memberships = $user->memberships()
             ->with(['ministry', 'roleRecord'])
             ->get()
+            ->filter(fn ($membership) => $membership->ministry)
             ->map(function ($membership) {
                 return [
                     'role' => $membership->roleSlug(),
@@ -66,6 +75,7 @@ class AuthController extends Controller
                 'email' => $user->email,
                 'is_superadmin' => $user->is_superadmin,
             ],
+            'organisation_role' => $user->organisationMemberships()->where('organisation_id', $request?->attributes->get('organisation')?->id)->where('status', 'active')->value('role'),
             'memberships' => $memberships,
             'impersonation' => $request?->session()->has('impersonator_id') ? [
                 'active' => true,
