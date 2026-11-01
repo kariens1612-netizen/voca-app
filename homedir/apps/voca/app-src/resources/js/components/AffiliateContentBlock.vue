@@ -14,7 +14,7 @@
 <script setup>
 import { RouterLink } from 'vue-router';
 defineProps({ block: { type: Object, required: true }, card: Boolean });
-const wording = text => text.replace(/\bAffiliates\b/g, 'Members').replace(/\bAffiliate\b/g, 'Member').replace(/\baffiliates\b/g, 'members').replace(/\baffiliate\b/g, 'member');
+const wording = text => text;
 const internalPath = url => {
     if (url.startsWith('/affiliates')) return url;
     try {

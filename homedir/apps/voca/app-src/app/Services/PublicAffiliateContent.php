@@ -34,48 +34,7 @@ class PublicAffiliateContent
             $block['id'] = $section->getAttribute('id');
             $sections[] = $block;
         }
-        return ['sections' => $this->withFounders($sections)];
-    }
-
-    private function withFounders(array $sections): array
-    {
-        $names = ['anil', 'johnny', 'vincent', 'nathan'];
-        $founders = [];
-        $insertAt = null;
-        foreach ($sections as $index => &$section) {
-            $remaining = [];
-            foreach ($section['cards'] as $card) {
-                $name = null;
-                foreach ($names as $candidate) {
-                    if (preg_match('/\\b'. $candidate .'\\b/i', $card['title'])) {
-                        $name = $candidate;
-                        break;
-                    }
-                }
-                if ($name === null) {
-                    $remaining[] = $card;
-                    continue;
-                }
-                $insertAt ??= $index;
-                if (!isset($founders[$name])) {
-                    $card['paragraphs'] = array_values(array_filter($card['paragraphs'], fn ($text) =>
-                        !preg_match('/^(Visionary Leader|President|Founder|VOCA member|Individual(?:\\s+.*)?)$/i', $text)
-                    ));
-                    array_unshift($card['paragraphs'], 'Founder');
-                    $founders[$name] = $card;
-                }
-            }
-            $section['cards'] = $remaining;
-        }
-        unset($section);
-        if ($insertAt !== null) {
-            $section = [
-                'id' => 'founders', 'title' => 'Founders', 'paragraphs' => [], 'images' => [], 'links' => [],
-                'cards' => array_values(array_filter(array_replace(array_fill_keys($names, null), $founders))),
-            ];
-            array_splice($sections, $insertAt, 0, [$section]);
-        }
-        return $sections;
+        return ['sections' => $sections];
     }
 
     private function block(DOMXPath $xpath, DOMNode $node, string $base): array

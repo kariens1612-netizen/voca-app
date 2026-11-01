@@ -11,7 +11,7 @@ class VocaAffiliateController extends Controller
     public function index(PublicAffiliateContent $content, ?string $slug = null)
     {
         abort_if($slug && !preg_match('/^[a-z0-9][a-z0-9-]{0,100}$/', $slug), 404);
-        return $this->fetch($content, '/affiliates'.($slug ? '/'.$slug : ''));
+        return $this->fetch($content, $slug ? '/affiliates/'.$slug : '/members');
     }
 
     public function pathway(PublicAffiliateContent $content, string $group)
@@ -25,7 +25,7 @@ class VocaAffiliateController extends Controller
         $base = rtrim((string) config('services.voca_members.url'), '/');
         abort_unless(str_starts_with($base, 'https://') || (app()->environment(['local', 'testing']) && str_starts_with($base, 'http://')), 503);
         try {
-            $data = Cache::remember('voca-affiliates:v2:'.sha1($base.$path), 300, function () use ($base, $path, $content) {
+            $data = Cache::remember('voca-affiliates:v3:'.sha1($base.$path), 300, function () use ($base, $path, $content) {
                 $response = Http::connectTimeout(4)->timeout(12)->withOptions(['allow_redirects' => false])->get($base.$path);
                 abort_if($response->status() === 404, 404, 'Affiliate information not found.');
                 abort_unless($response->successful(), 503, 'Affiliate information is temporarily unavailable.');
