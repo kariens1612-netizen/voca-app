@@ -1,0 +1,83 @@
+{
+  "../images/voca/about-branding.png": {
+    "file": "assets/about-branding-D_XwpKHZ.png",
+    "src": "../images/voca/about-branding.png"
+  },
+  "../images/voca/community/bible-fellowship.webp": {
+    "file": "assets/bible-fellowship-DBI8tblp.webp",
+    "src": "../images/voca/community/bible-fellowship.webp"
+  },
+  "../images/voca/community/community-volunteers.webp": {
+    "file": "assets/community-volunteers-B0HuMu_H.webp",
+    "src": "../images/voca/community/community-volunteers.webp"
+  },
+  "../images/voca/community/terrace-fellowship.webp": {
+    "file": "assets/terrace-fellowship-QRj6LmfG.webp",
+    "src": "../images/voca/community/terrace-fellowship.webp"
+  },
+  "../images/voca/community/tv-conversation.webp": {
+    "file": "assets/tv-conversation-XlVXivj1.webp",
+    "src": "../images/voca/community/tv-conversation.webp"
+  },
+  "node_modules/@capacitor/app/dist/esm/web.js": {
+    "file": "assets/web-BouBEVto.js",
+    "name": "web",
+    "src": "node_modules/@capacitor/app/dist/esm/web.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.js"
+    ],
+    "css": [
+      "assets/app-Ce_3-0BB.css"
+    ]
+  },
+  "node_modules/@capacitor/preferences/dist/esm/web.js": {
+    "file": "assets/web-BPZna0Br.js",
+    "name": "web",
+    "src": "node_modules/@capacitor/preferences/dist/esm/web.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.js"
+    ],
+    "css": [
+      "assets/app-Ce_3-0BB.css"
+    ]
+  },
+  "node_modules/workbox-window/build/workbox-window.prod.es5.mjs": {
+    "file": "assets/workbox-window.prod.es5-BIl4cyR9.js",
+    "name": "workbox-window.prod.es5",
+    "src": "node_modules/workbox-window/build/workbox-window.prod.es5.mjs",
+    "isDynamicEntry": true
+  },
+  "resources/css/app.css": {
+    "file": "assets/app-Ce_3-0BB.css",
+    "src": "resources/css/app.css",
+    "isEntry": true,
+    "name": "app",
+    "names": [
+      "app.css"
+    ]
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-bCoBtjyt.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true,
+    "dynamicImports": [
+      "node_modules/@capacitor/app/dist/esm/web.js",
+      "node_modules/@capacitor/preferences/dist/esm/web.js",
+      "node_modules/workbox-window/build/workbox-window.prod.es5.mjs"
+    ],
+    "css": [
+      "assets/app-DceJmMSb.css",
+      "assets/app-Ce_3-0BB.css"
+    ],
+    "assets": [
+      "assets/about-branding-D_XwpKHZ.png",
+      "assets/bible-fellowship-DBI8tblp.webp",
+      "assets/tv-conversation-XlVXivj1.webp",
+      "assets/terrace-fellowship-QRj6LmfG.webp",
+      "assets/community-volunteers-B0HuMu_H.webp"
+    ]
+  }
+}

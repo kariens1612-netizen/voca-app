@@ -2,6 +2,7 @@
 /*
 !/.gitignore
 !/README.md
+!/AGENTS.md
 !/homedir/
 /homedir/*
 !/homedir/apps/
@@ -44,6 +45,12 @@
 **/.well-known/
 **/sw.js
 **/workbox-*.js
+
+# Hostinger deploys locally compiled frontend assets directly from Git.
+!/homedir/apps/voca/build/
+!/homedir/apps/voca/build/**
+!/homedir/apps/voca/sw.js
+!/homedir/apps/voca/workbox-*.js
 # Custom Voca shop theme.
 !homedir/apps/voca/vendor/
 homedir/apps/voca/vendor/*

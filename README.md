@@ -18,7 +18,9 @@ npm run build
 
 Configure your database and service credentials in `.env` before running migrations. Point your web server at `homedir/apps/voca`, which contains the public `index.php`.
 
-Server backups, credentials, databases, uploads, dependencies and generated builds are excluded from version control.
+Production runs on Hostinger Agency Cloud hosting, where npm builds cannot run. Run `npm run build` locally from `homedir/apps/voca/app-src` before deploying frontend changes. Commit the generated `homedir/apps/voca/build/` directory, `manifest.webmanifest`, `sw.js`, and `workbox-*.js` with the source changes so Hostinger receives ready-to-serve assets. Include deletions of obsolete generated assets in release commits. Never deploy a local Vite `hot` file.
+
+Server backups, credentials, databases, uploads, dependencies and native build caches are excluded from version control.
 
 For public uploads, create a `storage` symlink in the web root pointing to `app-src/storage/app/public`.
 
