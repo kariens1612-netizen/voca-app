@@ -1,10 +1,7 @@
 <?php
 namespace Tests\Feature;
 
-use App\Http\Controllers\VocaAffiliateController;
 use App\Services\PublicAffiliateContent;
-use Illuminate\Support\Facades\Http;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use Tests\TestCase;
 
 class PublicAffiliateContentTest extends TestCase
@@ -44,35 +41,4 @@ class PublicAffiliateContentTest extends TestCase
         $this->assertSame('Example Church', $pathway['sections'][0]['cards'][0]['title']);
     }
 
-    public function test_backend_reads_the_website_and_caches_content(): void
-    {
-        config(['services.voca_members.url' => 'https://voca.africa']);
-        Http::preventStrayRequests();
-        Http::fake(['https://voca.africa/members' => Http::response('<section class="voca-affiliate-hero"><h1>Our network</h1></section>')]);
-        $controller = new VocaAffiliateController;
-        $response = $controller->index(new PublicAffiliateContent);
-        $this->assertSame('Our network', $response->getData(true)['sections'][0]['title']);
-        $controller->index(new PublicAffiliateContent);
-        Http::assertSentCount(1);
-    }
-
-    public function test_unrecognized_website_markup_is_not_treated_as_an_empty_directory(): void
-    {
-        config(['services.voca_members.url' => 'https://voca.africa']);
-        Http::fake(['*' => Http::response('<html>Maintenance</html>')]);
-        try {
-            (new VocaAffiliateController)->index(new PublicAffiliateContent);
-            $this->fail('Expected an unavailable response.');
-        } catch (HttpException $error) {
-            $this->assertSame(503, $error->getStatusCode());
-        }
-    }
-
-    public function test_connection_failure_returns_a_retryable_error(): void
-    {
-        config(['services.voca_members.url' => 'https://voca.africa']);
-        Http::fake(['*' => Http::failedConnection()]);
-        $response = (new VocaAffiliateController)->index(new PublicAffiliateContent);
-        $this->assertSame(503, $response->getStatusCode());
-    }
 }

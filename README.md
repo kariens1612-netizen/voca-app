@@ -36,3 +36,7 @@ For public uploads, create a `storage` symlink in the web root pointing to `app-
 Before deployment, configure `APP_URL`, `TENANCY_BASE_DOMAIN`, verified custom domains, and a real `MAIL_MAILER` with delivery credentials and sender address. The example mailer logs email locally rather than delivering it. Use HTTPS with `SESSION_SECURE_COOKIE=true` and leave `SESSION_DOMAIN=null` to isolate organisation cookies. Invitation links use a verified organisation domain or its configured subdomain; recovery links use the resolved request host. Test delivery on the target host before inviting real users.
 
 Run checks from `homedir/apps/voca/app-src` with `php artisan test` and `npm run build`.
+
+## Automatic member sync
+
+The website is the main record for approved member information. The app stores a local database copy and syncs every five minutes through an authenticated JSON endpoint. Deploy both projects and configure Hostinger cron as described in [member sync deployment](homedir/apps/voca/app-src/docs/member-sync.md).
