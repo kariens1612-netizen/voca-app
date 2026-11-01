@@ -1,6 +1,10 @@
 <?php
 
 return [
+    'voca_members' => [
+        'url' => env('VOCA_MEMBER_API_URL', 'https://voca.africa'),
+        'key' => env('VOCA_MEMBER_API_KEY'),
+    ],
 
     /*
     |--------------------------------------------------------------------------

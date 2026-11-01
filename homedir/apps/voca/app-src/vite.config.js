@@ -16,14 +16,26 @@ export default defineConfig({
         }),
         vue(),
         tailwindcss(),
+        {
+            name: 'delegate-offline-shell',
+            generateBundle(_options, bundle) {
+                const entry = Object.values(bundle).find(item => item.type === 'chunk' && item.isEntry && item.facadeModuleId?.endsWith('/resources/js/app.js'));
+                if (!entry) return;
+                const css = Object.values(bundle).filter(item => item.type === 'asset' && item.fileName.endsWith('.css'));
+                this.emitFile({ type: 'asset', fileName: 'movement-shell.html', source: `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>VOCA Delegate Movements</title>${css.map(item => `<link rel="stylesheet" href="/build/${item.fileName}">`).join('')}</head><body><div id="app"></div><script type="module" src="/build/${entry.fileName}"></script></body></html>` });
+            },
+        },
         VitePWA({
             base: '/',
             outDir: '..',
             registerType: 'autoUpdate',
             includeAssets: ['favicon.png', 'apple-touch-icon.png'],
             workbox: {
+                navigateFallback: '/build/movement-shell.html',
+                navigateFallbackAllowlist: [/^\/delegates(?:\/|$)/],
                 globPatterns: [
-                    'build/assets/*.{css,js}',
+                    'build/movement-shell.html',
+                    'build/assets/*.{css,js,png,webp}',
                     'build/manifest.webmanifest',
                     'favicon.png',
                     'apple-touch-icon.png',

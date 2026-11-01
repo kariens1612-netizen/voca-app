@@ -32,6 +32,7 @@ Route::prefix('api')->group(function () {
 
     Route::middleware(['auth', 'organisation.admin'])->prefix('admin')->group(function () {
         Route::get('settings', [TenantAdminController::class, 'settings']);
+        Route::post('setup', [TenantAdminController::class, 'completeSetup']);
         Route::patch('settings', [TenantAdminController::class, 'updateSettings']);
         Route::patch('modules', [TenantAdminController::class, 'updateModules']);
         Route::get('ministries', [TenantAdminController::class, 'ministries']);
@@ -77,7 +78,13 @@ Route::prefix('api')->group(function () {
 
     Route::get('ministries', [MinistryController::class, 'tenantIndex'])->middleware('module:public_ministries');
     Route::get('ministries/{ministry:slug}', [MinistryController::class, 'tenantShow'])->middleware('module:public_ministries');
+    Route::get('public/live-broadcasts', [PublicMinistryDirectoryController::class, 'live']);
     Route::get('public/ministry-directory', [PublicMinistryDirectoryController::class, 'index']);
+    Route::get('voca/affiliates', [\App\Http\Controllers\VocaAffiliateController::class, 'index']);
+    Route::get('voca/affiliates/{slug}', [\App\Http\Controllers\VocaAffiliateController::class, 'index']);
+    Route::get('voca/affiliate-pathways/{group}', [\App\Http\Controllers\VocaAffiliateController::class, 'pathway']);
+    Route::get('voca/directory', [\App\Http\Controllers\VocaDirectoryController::class, 'index']);
+    Route::get('voca/directory/{slug}', [\App\Http\Controllers\VocaDirectoryController::class, 'show']);
     Route::get('commerce/marketplace', [CommerceMarketplaceController::class, 'index'])->middleware('module:commerce');
     Route::prefix('bible')->group(function () {
         Route::get('bibles', [ApiBibleController::class, 'bibles'])->middleware('throttle:60,1');
@@ -88,9 +95,30 @@ Route::prefix('api')->group(function () {
     });
 });
 
+// Delegate rosters and movement records are private to organisation administrators.
+Route::middleware(['auth', 'organisation.admin'])->prefix('api/delegate-movements')->controller(\App\Http\Controllers\DelegateMovementController::class)->group(function () {
+    Route::get('/', 'index');
+    Route::post('/', 'store');
+    Route::get('/{roster}', 'show');
+    Route::post('/{roster}/import', 'import')->middleware('throttle:10,1');
+    Route::post('/{roster}/journeys', 'journey');
+    Route::post('/{roster}/sync', 'sync')->middleware('throttle:120,1');
+});
+
 Route::get('/media/{mediaAsset}', [MediaAssetController::class, 'show'])->name('media.assets.show');
+Route::get('/{organisationSlug}/media/{mediaAsset}', function (string $organisationSlug, \App\Models\MediaAsset $mediaAsset) {
+    return app(MediaAssetController::class)->show($mediaAsset);
+})->name('organisation.page.media.show');
+Route::get('/o/{organisationSlug}/media/{mediaAsset}', function (string $organisationSlug, \App\Models\MediaAsset $mediaAsset) {
+    return app(MediaAssetController::class)->show($mediaAsset);
+})->name('organisation.media.show');
 
 Route::prefix('auth')->group(function () {
+    Route::post('member-dashboard', [\App\Http\Controllers\MemberAccountController::class, 'dashboard'])->middleware(['auth', 'throttle:30,1']);
+    Route::post('member-forgot-password', [\App\Http\Controllers\MemberAccountController::class, 'forgot'])->middleware('throttle:5,1');
+    Route::post('member-reset-password', [\App\Http\Controllers\MemberAccountController::class, 'reset'])->middleware('throttle:10,1');
+    Route::post('member-login', [\App\Http\Controllers\MemberAccountController::class, 'login'])->middleware('throttle:login');
+    Route::post('member-register', [\App\Http\Controllers\MemberAccountController::class, 'register'])->middleware('throttle:5,1');
     Route::post('login', [AuthController::class, 'login'])->middleware('throttle:login')->name('login.post');
     Route::post('forgot-password', [\App\Http\Controllers\PasswordController::class, 'forgot'])->middleware('throttle:5,1');
     Route::post('reset-password', [\App\Http\Controllers\PasswordController::class, 'reset'])->middleware('throttle:10,1');
@@ -160,8 +188,10 @@ Route::prefix('brackenfell')->group(function () {
 
 Route::get('/live-settings', [LiveStreamSettingController::class, 'publicShow'])->middleware('module:livestreaming');
 Route::view('/login', 'welcome')->name('login');
+Route::get('/member-reset-password/{token}', fn () => response()->view('welcome')->header('Referrer-Policy', 'no-referrer')->header('Cache-Control', 'no-store'));
 Route::get('/reset-password/{token}', fn () => response()->view('welcome')->header('Referrer-Policy', 'no-referrer')->header('Cache-Control', 'no-store'))->name('password.reset');
-Route::view('/shop', 'welcome')->name('voca.shop');
+// The shop is temporarily hidden; preserve old links with a home redirect.
+Route::redirect('/shop', '/')->name('voca.shop');
 Route::redirect('/commerce', '/commerce/voca/shop/search')->name('voca.commerce');
 Route::get('/events', [PublicEventController::class, 'index'])->middleware('module:events');
 Route::post('/events/register', [EventRegistrationController::class, 'store'])->middleware(['module:events', 'throttle:10,1']);

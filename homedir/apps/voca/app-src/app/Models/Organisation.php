@@ -28,6 +28,14 @@ class Organisation extends Model
         return (bool) array_merge(self::DEFAULT_MODULES, $this->modules ?? [])[$module] ?? false;
     }
 
+    public function portalUrl(): string
+    {
+        if ($this->slug === config('tenancy.default_slug')) return rtrim(config('app.url'), '/');
+        if ($this->plan === 'standard') return rtrim(config('app.url'), '/').'/'.$this->slug;
+        $host = $this->plan === 'enterprise' ? $this->domains()->whereNotNull('verified_at')->orderByDesc('is_primary')->value('host') : null;
+        return 'https://'.($host ?: $this->slug.'.'.config('tenancy.base_domain'));
+    }
+
     public function publicPayload(): array
     {
         $branding = array_merge([

@@ -1,5 +1,6 @@
+import { revokeMovementAccess } from './delegateMovementStore.js';
 import { computed, ref } from 'vue';
-import { useTenant } from './useTenant';
+import { useTenant } from './useTenant.js';
 
 const user = ref(null);
 const organisationRole = ref(null);
@@ -20,7 +21,7 @@ let pendingLoad;
 const load = () => {
     if (pendingLoad) return pendingLoad;
     loading.value = true;
-    pendingLoad = window.axios.get('/auth/me')
+    pendingLoad = window.axios.get('/auth/me', { timeout: 10000 })
         .then(({ data }) => normalize(data))
         .catch(() => normalize({ user: null, memberships: [] }))
         .finally(() => { loading.value = false; pendingLoad = null; });
@@ -29,13 +30,25 @@ const load = () => {
 
 const login = async (payload) => {
     const response = await window.axios.post('/auth/login', payload);
+    if (!response.data?.user?.id) throw new Error('Sign-in could not reach the VOCA server. Check the app connection and try again.');
     normalize(response.data);
     await useTenant().load(true);
     return response.data;
 };
 
+const memberAuthenticate = async (endpoint, payload) => {
+    const { data } = await window.axios.post(endpoint, payload);
+    if (!data?.user?.id) throw new Error('Sign-in could not reach the VOCA server. Check the app connection and try again.');
+    normalize(data);
+    await useTenant().load(true);
+    return data;
+};
+const memberLogin = (payload) => memberAuthenticate('/auth/member-login', payload);
+const registerMember = (payload) => memberAuthenticate('/auth/member-register', payload);
+
 const logout = async () => {
     await window.axios.post('/auth/logout');
+    revokeMovementAccess();
     normalize({ user: null, memberships: [] });
     await useTenant().load(true);
 };
@@ -77,6 +90,8 @@ export function useAuth() {
         impersonation,
         load,
         login,
+        memberLogin,
+        registerMember,
         logout,
         hasRole,
     };

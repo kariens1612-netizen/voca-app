@@ -36,6 +36,19 @@ class PublicMinistryDirectoryController extends Controller
         ]);
     }
 
+    public function live(Request $request)
+    {
+        $directory = $this->index($request)->getData(true)['data'];
+        $enabled = Organisation::where('status', 'active')->get()
+            ->filter(fn (Organisation $organisation) => $organisation->moduleEnabled('livestreaming'))
+            ->pluck('id')->all();
+
+        return response()->json(['data' => collect($directory)->filter(fn ($item) =>
+            in_array($item['id'], $enabled, true) && $item['live']['is_live']
+            && ($item['live']['embed_url'] || $item['live']['watch_url'])
+        )->values()])->header('Cache-Control', 'no-store');
+    }
+
     private function payload(Organisation $organisation, ?LiveStreamSetting $stream, $ministries): array
     {
         $branding = $organisation->branding ?? [];
@@ -103,8 +116,6 @@ class PublicMinistryDirectoryController extends Controller
     {
         $status = strtolower((string) $status);
 
-        return str_contains($status, 'live')
-            || str_contains($status, 'on air')
-            || str_contains($status, 'broadcasting');
+        return in_array(trim($status), ['live', 'live now', 'currently live', 'on air', 'broadcasting'], true);
     }
 }

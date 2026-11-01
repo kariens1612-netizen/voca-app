@@ -18,7 +18,7 @@ class PasswordController extends Controller
         $data = $request->validate(['email' => ['required', 'email']]);
         $email = strtolower(trim($data['email']));
         $user = User::where('email', $email)->first();
-        if ($user?->canAccessOrganisation($request->attributes->get('organisation')?->id)) {
+        if (! $user?->website_member_id && $user?->canAccessOrganisation($request->attributes->get('organisation')?->id)) {
             Password::sendResetLink(['email' => $email]);
         }
 
@@ -33,7 +33,7 @@ class PasswordController extends Controller
         ]);
         $data['email'] = strtolower(trim($data['email']));
         $user = User::where('email', $data['email'])->first();
-        if (! $user?->canAccessOrganisation($request->attributes->get('organisation')?->id)) {
+        if ($user?->website_member_id || ! $user?->canAccessOrganisation($request->attributes->get('organisation')?->id)) {
             return response()->json(['message' => 'This password link is invalid or expired.'], 422);
         }
         $status = Password::reset($data, function ($user, $password) {

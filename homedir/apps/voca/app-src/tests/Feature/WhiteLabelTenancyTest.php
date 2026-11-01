@@ -79,7 +79,12 @@ class WhiteLabelTenancyTest extends TestCase
 
         $superadmin = User::factory()->create(['is_superadmin' => true]);
         $this->actingAs($superadmin)->postJson('/api/platform/organisations', ['name' => 'Gamma', 'slug' => 'gamma'])
-            ->assertCreated()->assertJsonPath('data.slug', 'gamma');
+            ->assertCreated()->assertJsonPath('data.slug', 'gamma')
+            ->assertJsonPath('data.branding.name', 'Gamma')
+            ->assertJsonPath('data.modules.events', true)
+            ->assertJsonPath('data.settings.timezone', 'Africa/Johannesburg');
+        $this->actingAs($superadmin)->postJson('/api/platform/organisations', ['name' => 'Invalid', 'slug' => 'Impactup.odoo.com'])
+            ->assertUnprocessable()->assertJsonValidationErrors('slug');
         $this->assertDatabaseHas('tenant_audits', ['action' => 'organisation.created']);
     }
 
@@ -127,5 +132,37 @@ class WhiteLabelTenancyTest extends TestCase
         $this->tenant('paused', ['status' => 'suspended']);
         $this->getJson($this->url('paused', '/api/bootstrap'))->assertStatus(423);
         $this->getJson($this->url('missing', '/api/bootstrap'))->assertNotFound();
+    }
+
+    public function test_standard_pages_and_api_context_keep_organisations_separate(): void
+    {
+        $alpha = $this->tenant('alpha', ['plan' => 'standard']);
+        $beta = $this->tenant('beta', ['plan' => 'standard']);
+        $this->get('/alpha')->assertOk();
+        $this->get('/alpha/admin')->assertOk();
+        $this->get('/alpha/login')->assertOk();
+        $this->get('/o/alpha')->assertOk();
+        $this->get('/missing')->assertNotFound();
+        $this->tenant('paused-page', ['status' => 'suspended']);
+        $this->get('/paused-page')->assertStatus(423);
+        $this->getJson('/api/bootstrap', ['X-Voca-Organisation' => 'alpha'])
+            ->assertOk()->assertJsonPath('organisation.id', $alpha->id);
+        $owner = User::factory()->create();
+        OrganisationMembership::create(['organisation_id' => $alpha->id, 'user_id' => $owner->id, 'role' => 'owner', 'status' => 'active']);
+        $this->actingAs($owner)->getJson('/api/admin/settings', ['X-Voca-Organisation' => 'alpha'])->assertOk();
+        $this->actingAs($owner)->getJson('/api/admin/settings', ['X-Voca-Organisation' => 'beta'])->assertForbidden();
+        $this->assertStringEndsWith('/alpha', $alpha->portalUrl());
+    }
+
+    public function test_standard_package_rejects_custom_domains(): void
+    {
+        $alpha = $this->tenant('alpha', ['plan' => 'standard']);
+        $admin = User::factory()->create(['is_superadmin' => true]);
+        $this->actingAs($admin)->postJson('/api/platform/organisations/'.$alpha->id.'/domains', ['host' => 'alpha.example.com'])
+            ->assertUnprocessable();
+        $this->actingAs($admin)->getJson('/api/platform/organisations')->assertOk()
+            ->assertJsonPath('data.data.0.portal_url', $alpha->portalUrl());
+        $this->actingAs($admin)->postJson('/api/platform/organisations', ['name' => 'Reserved', 'slug' => 'login', 'plan' => 'standard'])
+            ->assertUnprocessable()->assertJsonValidationErrors('slug');
     }
 }

@@ -14,6 +14,7 @@ class AuthController extends Controller
             'password' => ['required'],
         ]);
 
+        $credentials['website_member_id'] = null;
         $credentials['email'] = strtolower(trim($credentials['email']));
 
         if (! Auth::attempt($credentials)) {
@@ -74,6 +75,7 @@ class AuthController extends Controller
                 'name' => $user->name,
                 'email' => $user->email,
                 'is_superadmin' => $user->is_superadmin,
+                'is_voca_member' => (bool) $user->website_member_id,
             ],
             'organisation_role' => $user->organisationMemberships()->where('organisation_id', $request?->attributes->get('organisation')?->id)->where('status', 'active')->value('role'),
             'memberships' => $memberships,

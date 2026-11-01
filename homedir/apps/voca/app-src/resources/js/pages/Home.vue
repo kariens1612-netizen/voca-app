@@ -1,5 +1,7 @@
 <template>
-    <div class="website-home">
+    <OrganisationHome translate="no" v-if="tenant && tenant.slug !== 'voca'" />
+    <MobileHome v-else-if="isMobile" />
+    <div v-else class="website-home">
         <section class="website-hero">
             <div class="container website-hero-grid">
                 <div class="website-hero-copy">
@@ -10,9 +12,9 @@
                     <p>Connect with likeminded believers in ministry, business and life through an Apostolic Resource Centre serving Africa.</p>
                     <p class="website-hero-quote">Africa’s story deserves to be told with excellence.</p>
                     <div class="website-hero-actions">
-                        <a class="button" :href="voca.loginUrl">Member Login</a>
-                        <a class="button outline" :href="voca.registrationUrl">Register</a>
-                        <a class="button outline" href="https://voca.africa/affiliates">Become a Member</a>
+                        <RouterLink class="button" :to="voca.loginUrl">Member Login</RouterLink>
+                        <RouterLink class="button outline" :to="voca.registrationUrl">Register</RouterLink>
+                        <RouterLink class="button outline" to="/affiliates">Become a Member</RouterLink>
                         <RouterLink class="button ghost" to="/login">Ministry Team Portal</RouterLink>
                     </div>
                     <div class="website-hero-tags"><span v-for="pillar in pillars" :key="pillar.title">{{ pillar.title }}</span></div>
@@ -33,20 +35,21 @@
                 <div class="website-ministry-grid">
                     <article v-for="pillar in pillars" :key="pillar.title" class="website-ministry-card card"><img class="voca-card-image" :src="pillar.image.src" :alt="pillar.image.alt" width="1672" height="941" loading="lazy" decoding="async" /><h3>{{ pillar.title }}</h3><p>{{ pillar.description }}</p></article>
                 </div>
-                <a class="button outline" href="https://voca.africa/about-us#pillars">Explore Our Values</a>
+                <RouterLink class="button outline" to="/about-us#pillars">Explore Our Values</RouterLink>
             </div>
         </section>
-        <section id="about" class="section">
+        <section id="about" class="section voca-blue-section">
             <div class="container">
                 <div class="section-header"><p class="eyebrow">About VOCA</p><h2>{{ voca.statement }}</h2><p class="section-subtitle">VOCA exists to inform, inspire and influence Africa with a voice rooted in faith, anchored in truth and committed to unity.</p></div>
                 <div class="website-support-grid">
                     <article class="website-support-card card"><h3>Our Vision</h3><p>{{ voca.vision }}</p></article>
                     <article class="website-support-card card"><h3>Our Mission</h3><p>{{ voca.mission }}</p></article>
                 </div>
-                <a class="button outline" href="https://voca.africa/about-us">About Us</a>
+                <RouterLink class="button outline" to="/about-us">About Us</RouterLink>
             </div>
         </section>
-        <section id="media" class="section section-tight">
+        <div class="container"><EthneIntro /></div>
+        <section id="media" class="section section-tight voca-blue-section">
             <div class="container">
                 <div class="section-header"><p class="eyebrow">Media and Services</p><h2>VOCA Platform</h2></div>
                 <div class="website-ministry-grid">
@@ -197,24 +200,31 @@
             <div class="container">
                 <div class="section-header"><p class="eyebrow">Connect and Participate</p><h2>Your place in the VOCA network.</h2></div>
                 <div class="website-ministry-grid">
-                    <a v-for="pathway in pathways" :key="pathway.title" class="website-ministry-card card card-link" :href="pathway.url"><img class="voca-card-image" :src="pathway.image.src" :alt="pathway.image.alt" width="1672" height="941" loading="lazy" decoding="async" /><h3>{{ pathway.title }}</h3><p>{{ pathway.description }}</p><span class="ministry-card-link">Explore {{ pathway.title }}</span></a>
+                    <component :is="pathway.to ? RouterLink : 'a'" v-for="pathway in pathways" :key="pathway.title" class="website-ministry-card card card-link" :to="pathway.to" :href="pathway.to ? undefined : pathway.url"><img class="voca-card-image" :src="pathway.image.src" :alt="pathway.image.alt" width="1672" height="941" loading="lazy" decoding="async" /><h3>{{ pathway.title }}</h3><p>{{ pathway.description }}</p><span class="ministry-card-link">Explore {{ pathway.title }}</span></component>
                 </div>
             </div>
         </section>
         <section id="contact" class="section alt">
             <div class="container">
                 <div class="section-header"><p class="eyebrow">Stay Connected</p><h2>Join the Voice of Christian Africa</h2><p class="section-subtitle">Connect your ministry, church, organization, business or individual profile to the VOCA network.</p></div>
-                <div class="website-hero-actions"><a class="button" href="https://voca.africa/register">Register</a><a class="button outline" :href="`mailto:${voca.email}`">{{ voca.email }}</a></div>
+                <div class="website-hero-actions"><RouterLink class="button" :to="voca.registrationUrl">Register</RouterLink><a class="button outline" :href="`mailto:${voca.email}`">{{ voca.email }}</a></div>
             </div>
         </section>
     </div>
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
+import EthneIntro from '../components/EthneIntro.vue';
+import MobileHome from '../components/MobileHome.vue';
+import OrganisationHome from '../components/OrganisationHome.vue';
+import { useTenant } from '../composables/useTenant';
+import { useMobileLayout } from '../composables/useMobileLayout';
 import { RouterLink } from 'vue-router';
 import { voca, pillars, platforms, pathways, communityImages } from '../data/voca';
 
+const { isMobile } = useMobileLayout();
+const { tenant } = useTenant();
 const heroImageUrl = communityImages.community.src;
 const fallbackMinistryImageUrl = communityImages.leaders.src;
 
@@ -248,5 +258,7 @@ const handleLiveClick = (event, ministry) => {
     }
 };
 
-onMounted(loadPublicMinistries);
+onMounted(() => { if (!isMobile.value) loadPublicMinistries(); });
+// Fetch the website directory if a browser is resized to the desktop layout.
+watch(isMobile, (mobile) => { if (!mobile && directoryLoading.value) loadPublicMinistries(); });
 </script>

@@ -24,7 +24,8 @@ class PlatformOrganisationController extends Controller
     {
         $this->authorizePlatform($request);
         return response()->json(['data' => Organisation::with(['domains', 'memberships.user:id,name,email'])
-            ->withCount(['ministries', 'users'])->orderBy('name')->paginate(50)]);
+            ->withCount(['ministries', 'users'])->orderBy('name')->paginate(50)
+            ->through(fn ($organisation) => array_merge($organisation->toArray(), ['portal_url' => $organisation->portalUrl()])), 'base_domain' => config('tenancy.base_domain')]);
     }
 
     public function store(Request $request)
@@ -35,6 +36,7 @@ class PlatformOrganisationController extends Controller
             $organisation = Organisation::create(array_merge([
                 'status' => 'active', 'plan' => 'standard',
                 'modules' => Organisation::DEFAULT_MODULES,
+                'branding' => ['name' => $data['name'], 'tagline' => 'Connect. Grow. Belong.', 'description' => 'Welcome to our community.', 'primary_colour' => '#1b4da3', 'secondary_colour' => '#081224', 'font_family' => 'Plus Jakarta Sans'],
                 'settings' => ['locale' => 'en', 'timezone' => 'Africa/Johannesburg'],
             ], $data));
             if ($request->filled('owner_user_id')) OrganisationMembership::create([
@@ -69,6 +71,7 @@ class PlatformOrganisationController extends Controller
     public function domain(Request $request, Organisation $organisation)
     {
         $this->authorizePlatform($request);
+        abort_unless($organisation->plan === 'enterprise', 422, 'Custom domains require the Enterprise package.');
         $data = $request->validate(['host' => ['required', 'string', 'max:253', 'regex:/^(?=.{1,253}$)([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i', 'unique:organisation_domains,host'], 'is_primary' => ['sometimes', 'boolean']]);
         $domain = $organisation->domains()->create([
             'host' => strtolower($data['host']), 'is_primary' => $data['is_primary'] ?? false,
@@ -191,9 +194,9 @@ class PlatformOrganisationController extends Controller
     {
         return $request->validate([
             'name' => [$organisation ? 'sometimes' : 'required', 'string', 'max:150'],
-            'slug' => [$organisation ? 'sometimes' : 'required', 'alpha_dash', 'max:80', Rule::unique('organisations')->ignore($organisation)],
+            'slug' => [$organisation ? 'sometimes' : 'required', 'string', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', 'max:63', Rule::notIn(config('tenancy.reserved_slugs')), Rule::unique('organisations')->ignore($organisation)],
             'status' => ['sometimes', Rule::in(['active', 'suspended', 'archived'])],
-            'plan' => ['sometimes', 'string', 'max:40'], 'storage_limit_bytes' => ['sometimes', 'integer', 'min:0'],
+            'plan' => ['sometimes', Rule::in(['standard', 'pro', 'enterprise'])], 'storage_limit_bytes' => ['sometimes', 'integer', 'min:0'],
             'branding' => ['sometimes', 'array'], 'settings' => ['sometimes', 'array'], 'modules' => ['sometimes', 'array'],
             'owner_user_id' => ['sometimes', 'integer', 'exists:users,id'],
         ]);

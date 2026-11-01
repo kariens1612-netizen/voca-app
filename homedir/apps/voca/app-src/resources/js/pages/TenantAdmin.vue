@@ -1,6 +1,7 @@
 <template>
     <section class="section"><div class="container">
         <div class="section-heading"><div><p class="eyebrow">Organisation administration</p><h1>Configure {{ tenant?.name }}</h1></div></div>
+        <RouterLink v-if="permissions.manage_owners" class="button" to="/admin/setup">Guided owner setup</RouterLink>
         <p v-if="message" class="status-card">{{ message }}</p>
         <div class="admin-grid">
             <form class="glass-card admin-panel" @submit.prevent="saveBrand">
@@ -74,11 +75,13 @@
                 <p v-else class="muted">No media uploaded yet.</p>
             </div>
         </div>
+        <StreamSettingsManager v-if="tenant?.modules?.livestreaming" :can-manage="permissions.manage_organisation" />
     </div></section>
 </template>
 
 <script setup>
 import { onMounted, reactive, ref } from 'vue';
+import StreamSettingsManager from '../components/StreamSettingsManager.vue';
 import { useTenant } from '../composables/useTenant';
 const { tenant, permissions, load } = useTenant();
 const saving = ref(false); const message = ref(''); const ministries = ref([]); const users = ref([]);

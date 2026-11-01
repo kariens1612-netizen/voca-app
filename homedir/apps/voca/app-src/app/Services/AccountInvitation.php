@@ -16,8 +16,7 @@ class AccountInvitation
         }
 
         return Password::sendResetLink(['email' => $user->email], function ($user, $token) use ($organisation) {
-            $host = $organisation->domains()->whereNotNull('verified_at')->orderByDesc('is_primary')->value('host');
-            $base = $host ? 'https://'.$host : 'https://'.$organisation->slug.'.'.config('tenancy.base_domain');
+            $base = $organisation->portalUrl();
             if ($organisation->slug === config('tenancy.default_slug')) {
                 $base = rtrim(config('app.url'), '/');
             }

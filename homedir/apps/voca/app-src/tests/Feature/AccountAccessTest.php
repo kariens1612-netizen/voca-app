@@ -49,7 +49,7 @@ class AccountAccessTest extends TestCase
         ])->assertCreated()->assertJsonPath('invitation_sent', true);
         $user = User::where('email', 'new@example.com')->firstOrFail();
         $notification = Notification::sent($user, AccountInvitationNotification::class)->first();
-        $this->assertStringStartsWith('https://alpha.app.voca.co.za/reset-password/', $notification->url);
+        $this->assertStringStartsWith(rtrim(config('app.url'), '/').'/alpha/reset-password/', $notification->url);
         $token = basename(parse_url($notification->url, PHP_URL_PATH));
         auth()->logout();
         $data = ['email' => $user->email, 'token' => $token, 'password' => 'NewPassword12345', 'password_confirmation' => 'NewPassword12345'];
@@ -70,7 +70,7 @@ class AccountAccessTest extends TestCase
         $this->postJson($this->url('/auth/forgot-password'), ['email' => $outsider->email])->assertExactJson($response->json());
         $this->postJson($this->url('/auth/forgot-password'), ['email' => 'missing@example.com'])->assertExactJson($response->json());
         Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user) {
-            $this->assertStringStartsWith('http://alpha.app.voca.co.za/reset-password/', $notification->toMail($user)->actionUrl);
+            $this->assertStringStartsWith(rtrim(config('app.url'), '/').'/alpha/reset-password/', $notification->toMail($user)->actionUrl);
 
             return true;
         });

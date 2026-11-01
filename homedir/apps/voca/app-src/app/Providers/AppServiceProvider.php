@@ -25,7 +25,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         \Illuminate\Auth\Notifications\ResetPassword::createUrlUsing(function ($user, $token) {
-            return request()->getSchemeAndHttpHost().'/reset-password/'.$token.'?'.http_build_query(['email' => $user->email]);
+            $base = request()->attributes->get('organisation')?->portalUrl() ?? request()->getSchemeAndHttpHost();
+            return $base.'/reset-password/'.$token.'?'.http_build_query(['email' => $user->email]);
         });
         \Illuminate\Support\Facades\RateLimiter::for('login', function ($request) {
             return [

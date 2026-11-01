@@ -26,6 +26,10 @@ class MediaAsset extends Model
     public function getUrlAttribute(): string
     {
         if ($this->disk === 'public' && $this->exists) {
+            $organisation = Organisation::find($this->organisation_id);
+            if ($organisation && $organisation->plan === 'standard' && $organisation->slug !== config('tenancy.default_slug')) {
+                return $organisation->portalUrl().'/media/'.$this->id;
+            }
             return route('media.assets.show', $this);
         }
 

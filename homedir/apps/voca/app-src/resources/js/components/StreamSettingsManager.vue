@@ -4,7 +4,7 @@
             <div>
                 <h2>Live stream settings</h2>
                 <p class="stream-settings-subtitle">
-                    Update the Rumble stream details shown on the public live page.
+                    Set your public player and save status as Live when broadcasting. Save Offline when the broadcast ends. The public feed refreshes every 30 seconds.
                 </p>
             </div>
             <button class="button ghost" type="button" @click="loadSettings">
@@ -20,7 +20,8 @@
                 </label>
                 <label>
                     Status
-                    <input v-model="form.status" type="text" maxlength="80" required />
+                    <input v-model="form.status" type="text" list="broadcast-statuses" maxlength="80" required />
+                    <datalist id="broadcast-statuses"><option value="Live" /><option value="Offline" /><option value="Scheduled" /><option value="Stand by" /></datalist>
                 </label>
                 <label>
                     Schedule
@@ -31,11 +32,11 @@
                     <input v-model="form.stream_title" type="text" maxlength="160" />
                 </label>
                 <label class="stream-settings-span-2">
-                    Rumble embed URL
+                    Public player embed URL
                     <input v-model="form.embed_url" type="url" maxlength="2000" placeholder="Use the Embed button on the Rumble livestream" />
                 </label>
                 <label class="stream-settings-span-2">
-                    Rumble stream URL
+                    Public watch URL
                     <input v-model="form.watch_url" type="url" maxlength="2000" placeholder="https://rumble.com/v7cy4ji-kingdom-eyes-kingdom-victory.html" />
                 </label>
                 <label class="stream-settings-span-2">

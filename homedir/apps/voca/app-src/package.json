@@ -6,6 +6,7 @@
         "build": "vite build && node scripts/write-capacitor-index.mjs && cp ../build/manifest.webmanifest ../manifest.webmanifest",
         "dev": "vite",
         "mobile:sync": "npm run build && cap sync",
+        "mobile:android:local": "node scripts/android-local.mjs",
         "mobile:open:ios": "cap open ios",
         "mobile:open:android": "cap open android"
     },

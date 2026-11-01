@@ -20,6 +20,45 @@ class TenantAdminController extends Controller
 
     public function settings(Request $request) { return response()->json(['data' => $request->attributes->get('organisation')]); }
 
+    public function completeSetup(Request $request)
+    {
+        $this->authorizeOwner($request);
+        $request->validate([
+            'name' => ['required', 'string', 'max:150'],
+            'branding' => ['required', 'array'],
+            'branding.name' => ['required', 'string', 'max:150'],
+            'branding.description' => ['required', 'string', 'max:1000'],
+            'branding.contact.email' => ['required', 'email', 'max:255'],
+            'branding.contact.phone' => ['nullable', 'string', 'max:50'],
+            'branding.contact.address' => ['nullable', 'string', 'max:500'],
+            'settings.timezone' => ['required', 'timezone'],
+            'first_ministry' => ['nullable', 'array'],
+            'first_ministry.name' => ['required_with:first_ministry', 'string', 'max:150'],
+            'first_ministry.slug' => ['required_with:first_ministry', 'alpha_dash', 'max:100'],
+        ]);
+        return DB::transaction(function () use ($request) {
+            $organisation = Organisation::whereKey($request->attributes->get('organisation')->id)->lockForUpdate()->firstOrFail();
+            abort_if(data_get($organisation->settings, 'onboarding.completed_at'), 409, 'Setup is already complete. Use the dashboard to make further changes.');
+            $request->attributes->set('organisation', $organisation);
+            // Reuse the same validation and audit trail as the existing dashboard.
+            $request->merge([
+                'branding' => array_replace_recursive($organisation->branding ?? [], $request->input('branding')),
+                'settings' => array_replace_recursive($organisation->settings ?? [], $request->input('settings', [])),
+            ]);
+            $this->updateSettings($request);
+            $this->updateModules($request);
+            if ($ministry = $request->input('first_ministry')) {
+                $request->merge($ministry);
+                $this->storeMinistry($request);
+            }
+            $organisation->refresh();
+            $organisation->update(['settings' => array_merge($organisation->settings ?? [], [
+                'onboarding' => ['completed_at' => now()->toIso8601String(), 'completed_by' => $request->user()->id],
+            ])]);
+            return response()->json(['data' => $organisation->fresh()]);
+        });
+    }
+
     public function updateSettings(Request $request)
     {
         $organisation = $request->attributes->get('organisation');

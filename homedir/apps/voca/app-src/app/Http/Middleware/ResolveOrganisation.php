@@ -21,9 +21,19 @@ class ResolveOrganisation
         }
         $host = strtolower(explode(':', $request->getHost())[0]);
         $organisation = null;
+        $sharedHost = in_array($host, config('tenancy.trusted_hosts', []), true) || $host === strtolower(config('tenancy.base_domain'));
+        $first = $request->segment(1);
+        $pathSlug = $first === 'o' ? $request->segment(2) : (
+            $first && preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/', $first) && ! in_array($first, config('tenancy.reserved_slugs'), true) ? $first : null
+        );
+        $requestedSlug = $pathSlug ?: $request->header('X-Voca-Organisation');
+        if ($requestedSlug && $sharedHost) {
+            $organisation = Organisation::where('slug', $requestedSlug)->first();
+            if (! $organisation) return response()->json(['message' => 'Organisation not found.'], 404);
+        }
         $impersonatorId = $request->hasSession() ? $request->session()->get('impersonator_id') : null;
         $impersonatedOrganisationId = $request->hasSession() ? $request->session()->get('impersonated_organisation_id') : null;
-        if ($impersonatorId && $impersonatedOrganisationId
+        if (! $organisation && $impersonatorId && $impersonatedOrganisationId
             && \App\Models\User::query()->whereKey($impersonatorId)->where('is_superadmin', true)->exists()) {
             $organisation = Organisation::query()->find($impersonatedOrganisationId);
         }

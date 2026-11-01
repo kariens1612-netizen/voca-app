@@ -11,7 +11,8 @@ class EnsureTenantAccess
     {
         $user = $request->user();
         $accountAccess = $request->is('auth/login', 'auth/logout', 'auth/forgot-password', 'auth/reset-password',
-            'login', 'platform/login', 'forgot-password', 'reset-password/*', 'api/platform/impersonation/stop');
+            'auth/member-login', 'auth/member-register', 'auth/member-forgot-password', 'auth/member-reset-password',
+            'member-login', 'register', 'member-forgot-password', 'member-reset-password/*', 'login', 'platform/login', 'forgot-password', 'reset-password/*', 'api/platform/impersonation/stop');
         if ($user && ! $accountAccess && ! $user->canAccessOrganisation($request->attributes->get('organisation')?->id)) {
             // Suspension overrides any legacy ministry role.
             abort(403, 'Your account does not have active access to this organisation.');

@@ -11,12 +11,13 @@
             <div class="website-ministry-grid">
                 <article v-for="feature in features" :key="feature.title" class="website-ministry-card card"><h3>{{ feature.title }}</h3><p>{{ feature.description }}</p></article>
             </div>
-            <div class="card note"><h2>Your voice belongs in the room.</h2><p>Join a growing network of churches, ministries and leaders committed to one voice, one continent and one purpose.</p><div class="website-hero-actions"><a class="button" href="https://voca.africa/register">Join the VOCA Network</a><a class="button outline" href="https://voca.africa/apostolic-fellowship">Explore Apostolic Fellowship</a></div></div>
+            <div class="card note"><h2>Your voice belongs in the room.</h2><p>Join a growing network of churches, ministries and leaders committed to one voice, one continent and one purpose.</p><div class="website-hero-actions"><RouterLink class="button" to="/register">Join the VOCA Network</RouterLink><a class="button outline" href="https://voca.africa/apostolic-fellowship">Explore Apostolic Fellowship</a></div></div>
         </div>
     </section>
 </template>
 
 <script setup>
+import { RouterLink } from 'vue-router';
 import { communityImages } from '../data/voca';
 const features = [
     { title: 'Trusted relationships', description: 'Connect with leaders who understand the privilege and pressure of ministry.' },

@@ -5,8 +5,8 @@ export const voca = {
     tagline: 'Informing Africa. Inspiring Hope. Influencing Nations.',
     statement: 'One Voice. One Continent. One Purpose.',
     email: 'info@voca.africa',
-    loginUrl: 'https://voca.africa/login',
-    registrationUrl: 'https://voca.africa/register',
+    loginUrl: '/member-login',
+    registrationUrl: '/register',
     vision: 'A united, informed and influential Christian community shaping a stronger Africa and blessing the nations.',
     mission: 'To inform, inspire and influence Africa by connecting the Church, amplifying credible Christian voices, equipping leaders and mobilising faith into action.',
 };
@@ -38,8 +38,8 @@ export const platforms = [
 ];
 
 export const pathways = [
-    { title: 'Members', image: communityImages.leaders, description: 'Organizations, churches and individuals can align with VOCA for shared mission, credibility and reach.', url: 'https://voca.africa/affiliates' },
-    { title: 'Register', image: communityImages.community, description: 'Create your VOCA profile, choose your membership type and access media, events, courses and ministry tools.', url: 'https://voca.africa/register' },
+    { title: 'Members', image: communityImages.leaders, description: 'Organizations, churches and individuals can align with VOCA for shared mission, credibility and reach.', to: '/affiliates' },
+    { title: 'Register', image: communityImages.community, description: 'Create your VOCA profile, and access media, events, courses and ministry tools.', to: '/register' },
     { title: 'Business Directory', image: communityImages.business, description: 'Discover approved VOCA member businesses organized by country, city and suburb.', url: 'https://voca.africa/directory' },
     { title: 'Events', image: communityImages.volunteers, description: 'Explore events across the VOCA network.', url: 'https://voca.africa/events' },
     { title: 'Youth / Children', image: communityImages.youth, description: 'Resources and programming for emerging generations.', url: 'https://voca.africa/#youth' },

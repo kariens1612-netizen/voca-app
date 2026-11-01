@@ -1,206 +1,98 @@
 <template>
-    <div>
-        <section class="section live-page">
-            <div class="container">
-                <div class="section-header">
-                    <p class="eyebrow">Live</p>
-                    <h1>VOCA Live Stream</h1>
-                    <p class="section-subtitle">
-                        OBS-ready streaming for services and special events, with a larger viewing experience and a
-                        simple operator checklist for the media team.
-                    </p>
-                    <div class="live-badges">
-                        <span>{{ liveStatusLabel }}</span>
-                        <span>{{ livePlatformLabel }}</span>
-                        <span>{{ liveScheduleLabel }}</span>
-                    </div>
-                    <div class="section-actions">
-                        <RouterLink class="button outline" to="/">Back to home</RouterLink>
-                        <a v-if="watchUrl" class="button ghost" :href="watchUrl" target="_blank" rel="noreferrer">
-                            Open stream destination
-                        </a>
-                    </div>
+    <section class="section broadcast-home">
+        <div class="container">
+            <div class="broadcast-heading">
+                <div>
+                    <p class="eyebrow">VOCA • Across the network</p>
+                    <h1>Live now</h1>
+                    <p class="section-subtitle">Watch services and broadcasts from ministries and organizations. Everyone is welcome to watch.</p>
                 </div>
-                <div class="live-page-grid">
-                    <div class="live-stage" @click="requestFullscreen">
-                        <iframe
-                            v-if="liveEmbedUrl"
-                            :src="liveEmbedUrl"
-                            title="VOCA Live Stream"
-                            allow="fullscreen"
-                            allowfullscreen
-                            loading="lazy"
-                        ></iframe>
-                        <div v-else class="tv-placeholder">
-                            <p>
-                                Add your public player embed from the admin portal stream settings section, or use the
-                                fallback config file if the database has not been set up yet.
-                            </p>
-                            <p class="tv-placeholder-note">
-                                OBS sends the stream to YouTube, Facebook, Vimeo, Rumble, or another RTMP destination.
-                                The website then embeds that public player.
-                            </p>
-                        </div>
-                        <button class="fullscreen-button" type="button" @click.stop="requestFullscreen">
-                            Full screen
-                        </button>
-                    </div>
-                    <div class="live-info-card">
-                        <p class="eyebrow">OBS workflow</p>
-                        <h3>How this site works with OBS</h3>
-                        <p>
-                            Use OBS to broadcast to your streaming platform, then place that platform's public embed on
-                            this page for viewers. Superadmin and Power Media admins can update these links directly
-                            from the portal. Keep the OBS stream key private and out of Vite env files.
-                        </p>
-                        <div class="live-info-stack">
-                            <div class="live-info-row">
-                                <span>Platform</span>
-                                <strong>{{ livePlatformLabel }}</strong>
-                            </div>
-                            <div class="live-info-row">
-                                <span>Public watch page</span>
-                                <a v-if="watchUrl" :href="watchUrl" target="_blank" rel="noreferrer">Open destination</a>
-                                <strong v-else>Not set yet</strong>
-                            </div>
-                            <div class="live-info-row">
-                                <span>Embed source</span>
-                                <strong>{{ liveEmbedUrl ? 'Configured' : 'Missing' }}</strong>
-                            </div>
-                        </div>
-                        <div class="live-info-actions">
-                            <RouterLink class="button ghost" to="/#live">Back to home livestream</RouterLink>
-                            <RouterLink class="button" to="/international">Explore global family</RouterLink>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="obs-grid">
-                    <article class="obs-card">
-                        <p class="eyebrow">Before going live</p>
-                        <h3>OBS quick checklist</h3>
-                        <ul class="obs-checklist">
-                            <li v-for="item in obsChecklist" :key="item">{{ item }}</li>
-                        </ul>
-                    </article>
-
-                    <article class="obs-card">
-                        <p class="eyebrow">Frontend config</p>
-                        <h3>Public settings this app can safely use</h3>
-                        <div class="obs-config-list">
-                            <div v-for="item in publicConfig" :key="item.key" class="obs-config-row">
-                                <code>{{ item.key }}</code>
-                                <span>{{ item.value }}</span>
-                            </div>
-                        </div>
-                    </article>
-
-                    <article class="obs-card obs-card-wide">
-                        <p class="eyebrow">Important</p>
-                        <h3>Keep private OBS credentials out of the browser</h3>
-                        <p>
-                            Never place OBS stream keys in <code>VITE_*</code> variables. Anything prefixed with
-                            <code>VITE_</code> is shipped to every visitor. Store private streaming credentials only in
-                            OBS itself or in server-side environment variables that are never exposed to the client.
-                        </p>
-                        <div class="live-info-actions">
-                            <a
-                                v-if="watchUrl"
-                                class="button"
-                                :href="watchUrl"
-                                target="_blank"
-                                rel="noreferrer"
-                            >
-                                Open public stream page
-                            </a>
-                        </div>
-                    </article>
-                </div>
+                <RouterLink class="button outline" :to="user ? '/inside' : '/member-login'">{{ user ? 'Go inside' : 'Sign in to go inside' }}</RouterLink>
             </div>
-        </section>
-    </div>
+            <p v-if="loading" role="status">Finding live broadcasts…</p>
+            <div v-else-if="error" class="card broadcast-empty" role="alert">
+                <h2>We couldn’t refresh the broadcasts</h2>
+                <p>Please check your connection and try again.</p>
+                <button class="button outline" type="button" @click="refresh">Try again</button>
+            </div>
+            <template v-else>
+                <div v-if="selected" class="broadcast-viewer card">
+                    <div class="broadcast-player">
+                        <iframe v-if="safeUrl(selected.live.embed_url)" :key="selected.id + selected.live.embed_url" :src="safeUrl(selected.live.embed_url)" :title="selected.live.stream_title || selected.name" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowfullscreen></iframe>
+                        <div v-else class="broadcast-external"><p>This broadcast opens on {{ selected.live.platform || 'the streaming platform' }}.</p><a class="button" :href="safeUrl(selected.live.watch_url)" target="_blank" rel="noopener noreferrer">Watch broadcast ↗</a></div>
+                    </div>
+                    <div class="broadcast-viewer-caption"><h2>{{ selected.live.stream_title || selected.name }}</h2><p>{{ selected.name }}</p><a v-if="safeUrl(selected.live.watch_url) && safeUrl(selected.live.embed_url)" :href="safeUrl(selected.live.watch_url)" target="_blank" rel="noopener noreferrer">Open on {{ selected.live.platform || 'streaming platform' }} ↗</a><button class="button ghost" type="button" @click="selectedId = null">Close player</button></div>
+                </div>
+                <div v-if="broadcasts.length" class="broadcast-grid">
+                    <article v-for="broadcast in broadcasts" :key="broadcast.id" class="card broadcast-card">
+                        <button class="broadcast-thumbnail" type="button" :aria-label="`Watch ${broadcast.name} live`" @click="watchBroadcast(broadcast)">
+                            <img v-if="safeUrl(broadcast.thumbnail_url)" :src="safeUrl(broadcast.thumbnail_url)" :alt="broadcast.name" loading="lazy" />
+                            <span v-else class="broadcast-initial" aria-hidden="true">{{ broadcast.name.slice(0, 1) }}</span>
+                            <span class="broadcast-live">● Live</span><span class="broadcast-play" aria-hidden="true">▶</span>
+                        </button>
+                        <div class="broadcast-card-body"><p class="eyebrow">{{ broadcast.live.platform }}</p><h2>{{ broadcast.live.stream_title || broadcast.name }}</h2><p>{{ broadcast.name }}</p><p v-if="broadcast.tagline">{{ broadcast.tagline }}</p><button class="button" type="button" @click="watchBroadcast(broadcast)">Watch live</button></div>
+                    </article>
+                </div>
+                <div v-else class="card broadcast-empty" role="status"><p class="eyebrow">Stay connected</p><h2>No broadcasts are live right now</h2><p>Come back for the next service. This page checks for new broadcasts automatically.</p><RouterLink class="button outline" :to="user ? '/inside' : '/member-login'">Explore inside VOCA</RouterLink></div>
+                <p class="broadcast-refresh">Broadcasts refresh every 30 seconds. No account is needed to watch.</p>
+            </template>
+        </div>
+    </section>
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { RouterLink } from 'vue-router';
-import { liveStreamConfig } from '../config/liveStream';
-
-const remoteSettings = ref(null);
-
-const liveEmbedUrl = computed(
-    () =>
-        remoteSettings.value?.embed_url
-        || liveStreamConfig.embedUrl
-        || import.meta.env.VITE_LIVE_EMBED_URL
-        || ''
-);
-const watchUrl = computed(
-    () => remoteSettings.value?.watch_url || liveStreamConfig.watchUrl || import.meta.env.VITE_LIVE_WATCH_URL || ''
-);
-const livePlatform = computed(
-    () => remoteSettings.value?.platform || liveStreamConfig.platform || import.meta.env.VITE_LIVE_PLATFORM || 'Rumble'
-);
-const liveStatus = computed(
-    () => remoteSettings.value?.status || liveStreamConfig.status || import.meta.env.VITE_LIVE_STATUS || 'Stand by'
-);
-const liveSchedule = computed(
-    () =>
-        remoteSettings.value?.schedule
-        || liveStreamConfig.schedule
-        || import.meta.env.VITE_LIVE_SCHEDULE
-        || 'Sunday 09H30'
-);
-
-const livePlatformLabel = computed(() => livePlatform.value);
-const liveStatusLabel = computed(() => `Status: ${liveStatus.value}`);
-const liveScheduleLabel = computed(() => `Schedule: ${liveSchedule.value}`);
-
-const obsChecklist = [
-    'Open the Voca OBS scene collection and confirm audio meters are moving.',
-    'Paste the stream key inside OBS, not inside this website.',
-    'Start streaming in OBS first, then verify the destination platform receives signal.',
-    'Refresh this page and test the embedded player before service starts.',
-    'Use full screen mode on mobile for the clearest viewing experience.',
-];
-
-const publicConfig = computed(() => [
-    { key: 'Embed URL', value: liveEmbedUrl.value || 'Not configured' },
-    { key: 'Watch URL', value: watchUrl.value || 'Not configured' },
-    { key: 'Platform', value: livePlatform.value },
-    { key: 'Status', value: liveStatus.value },
-    { key: 'Schedule', value: liveSchedule.value },
-]);
-
-const loadSettings = async () => {
+import { useAuth } from '../composables/useAuth';
+const { user } = useAuth();
+const broadcasts = ref([]), loading = ref(true), error = ref(false), selectedId = ref(null);
+const selected = computed(() => broadcasts.value.find(item => item.id === selectedId.value));
+let timer, pending = false, disposed = false;
+const safeUrl = (value) => {
+    try { const url = new URL(value); return ['https:', 'http:'].includes(url.protocol) ? url.href : ''; } catch { return ''; }
+};
+const refresh = async () => {
+    if (pending) return;
+    pending = true;
     try {
-        const response = await window.axios.get('/live-settings');
-        const data = response.data || {};
-
-        if (data.embed_url || data.watch_url || data.platform || data.status || data.schedule) {
-            remoteSettings.value = data;
-        }
-    } catch (error) {
-        // Keep the frontend fallback values when the database settings are not available yet.
-    }
+        const { data } = await window.axios.get('/api/public/live-broadcasts', { timeout: 12000 });
+        if (!Array.isArray(data?.data)) throw new Error('Invalid broadcast response');
+        if (disposed) return;
+        broadcasts.value = data.data.filter(item => item.live?.is_live && (safeUrl(item.live.embed_url) || safeUrl(item.live.watch_url)));
+        if (!selected.value) selectedId.value = null;
+        error.value = false;
+    } catch {
+        if (!disposed) { error.value = true; broadcasts.value = []; selectedId.value = null; }
+    } finally { pending = false; if (!disposed) loading.value = false; }
 };
-
-const requestFullscreen = (event) => {
-    const target = event?.currentTarget || event?.target;
-    const container = target?.closest('.live-stage');
-    if (!container) {
-        return;
-    }
-    if (document.fullscreenElement) {
-        document.exitFullscreen?.();
-        document.webkitExitFullscreen?.();
-        return;
-    }
-    container.requestFullscreen?.();
-    container.webkitRequestFullscreen?.();
+const watchBroadcast = (broadcast) => {
+    selectedId.value = broadcast.id;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 };
-
-onMounted(() => {
-    loadSettings();
-});
+const refreshOnReturn = () => { if (!document.hidden) refresh(); };
+onMounted(() => { refresh(); timer = window.setInterval(() => { if (!document.hidden) refresh(); }, 30000); document.addEventListener('visibilitychange', refreshOnReturn); });
+onUnmounted(() => { disposed = true; window.clearInterval(timer); document.removeEventListener('visibilitychange', refreshOnReturn); });
 </script>
+
+<style scoped>
+.broadcast-heading { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 32px; }
+.broadcast-heading h1 { font-size: clamp(2.5rem, 6vw, 4.5rem); margin-bottom: 12px; }
+.broadcast-heading .section-subtitle { max-width: 650px; }
+.broadcast-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 24px; }
+.broadcast-card { padding: 0; overflow: hidden; min-width: 0; }
+.broadcast-thumbnail { display: block; width: 100%; aspect-ratio: 16/9; position: relative; border: 0; background: #10263f; cursor: pointer; color: white; overflow: hidden; }
+.broadcast-thumbnail img { width: 100%; height: 100%; object-fit: cover; }
+.broadcast-initial { font-size: 4rem; opacity: .5; }
+.broadcast-live { position: absolute; top: 14px; left: 14px; background: #b61425; padding: 5px 12px; border-radius: 20px; font-weight: 700; }
+.broadcast-play { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #0009; border-radius: 50%; width: 54px; height: 54px; display: grid; place-items: center; }
+.broadcast-card-body, .broadcast-viewer-caption { padding: 24px; display: grid; gap: 12px; }
+.broadcast-card h2 { font-size: 1.4rem; overflow-wrap: anywhere; }
+.broadcast-card .button { justify-self: start; }
+.broadcast-empty { padding: clamp(24px, 5vw, 64px); display: grid; justify-items: start; gap: 20px; }
+.broadcast-viewer { padding: 0; overflow: hidden; margin-bottom: 32px; }
+.broadcast-player { aspect-ratio: 16/9; background: #081224; }
+.broadcast-player iframe { display: block; width: 100%; height: 100%; border: 0; }
+.broadcast-external { height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 16px; padding: 20px; text-align: center; }
+.broadcast-refresh { margin-top: 24px; font-size: .9rem; opacity: .75; }
+@media (max-width: 640px) { .broadcast-heading { align-items: flex-start; flex-direction: column; } .broadcast-home { padding-top: 28px; } }
+</style>
