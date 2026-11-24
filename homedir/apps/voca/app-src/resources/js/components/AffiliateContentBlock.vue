@@ -1,5 +1,5 @@
 <template>
-    <div class="affiliate-copy">
+    <div class="affiliate-copy" :class="{ 'affiliate-card-copy': card }">
         <div v-if="block.images.length" class="affiliate-images"><img v-for="image in block.images" :key="image.src" :src="image.src" :alt="wording(image.alt)" loading="lazy" /></div>
         <component :is="card ? 'h3' : 'h2'" v-if="block.title">{{ wording(block.title) }}</component>
         <p v-for="(paragraph, index) in block.paragraphs" :key="index">{{ wording(paragraph) }}</p>
@@ -38,6 +38,12 @@ const internalPath = url => {
 .affiliate-copy h3 { font-size: 1.3rem; }
 .affiliate-images { display: flex; gap: 16px; flex-wrap: wrap; }
 .affiliate-images img { width: 100%; max-height: 420px; object-fit: contain; border-radius: 18px; }
+.affiliate-card-copy { gap: 10px; }
+.affiliate-card-copy .affiliate-images { justify-content: center; gap: 10px; }
+.affiliate-card-copy .affiliate-images img { width: auto; max-width: 100%; height: 180px; max-height: 180px; border-radius: 12px; }
+.affiliate-card-copy h3 { font-size: 1.05rem; margin: 0; }
+.affiliate-card-copy p { font-size: 0.9rem; line-height: 1.5; margin: 0; }
+.affiliate-card-copy .affiliate-links { gap: 6px 14px; font-size: 0.9rem; }
 .affiliate-links { display: flex; flex-wrap: wrap; gap: 12px 24px; }
 .affiliate-links a { color: var(--gold-400); padding: 8px 0; line-height: 1.5; }
 </style>

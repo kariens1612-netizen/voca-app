@@ -51,12 +51,12 @@ watch(() => route.path, load, { immediate: true });
 h1 { font-family: var(--display-font); font-size: clamp(2.2rem, 5vw, 4rem); margin: 12px 0; }
 .affiliate-sections { display: grid; gap: 64px; }
 .affiliate-section { display: grid; gap: 28px; scroll-margin-top: 220px; }
-.affiliate-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
-.affiliate-grid .card { padding: 28px; }
+.affiliate-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
+.affiliate-grid .card { padding: 18px; }
 .affiliate-join { display: grid; justify-items: start; gap: 24px; padding: 32px; }
 @media (max-width: 1100px) { .affiliate-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .affiliates-mobile { padding: 28px 0; }
 .affiliates-mobile .affiliate-grid { grid-template-columns: minmax(0, 1fr); gap: 20px; }
 .affiliates-mobile .affiliate-sections { gap: 36px; }
-.affiliates-mobile .affiliate-grid .card { padding: 22px; }
+.affiliates-mobile .affiliate-grid .card { padding: 18px; }
 </style>
