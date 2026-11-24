@@ -27,7 +27,7 @@ class MediaAssetManagementTest extends TestCase
 
     private function url(string $slug, string $path): string
     {
-        return 'http://'.$slug.'.app.voca.co.za'.$path;
+        return 'http://'.$slug.'.app.voca.africa'.$path;
     }
 
     public function test_organisation_admin_can_upload_and_list_media_assets(): void

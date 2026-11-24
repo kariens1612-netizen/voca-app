@@ -36,7 +36,7 @@ class AccountAccessTest extends TestCase
 
     private function url(string $path): string
     {
-        return 'http://alpha.app.voca.co.za'.$path;
+        return 'http://alpha.app.voca.africa'.$path;
     }
 
     public function test_invitation_email_provides_a_single_use_password_setup_link(): void

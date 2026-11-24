@@ -40,3 +40,22 @@ Run checks from `homedir/apps/voca/app-src` with `php artisan test` and `npm run
 ## Automatic member sync
 
 The website is the main record for approved member information. The app stores a local database copy and syncs every five minutes through an authenticated JSON endpoint. Deploy both projects and configure Hostinger cron as described in [member sync deployment](homedir/apps/voca/app-src/docs/member-sync.md).
+
+### Production domain configuration
+
+For `app.voca.africa`, set these values in the **server** `homedir/apps/voca/app-src/.env`:
+
+```dotenv
+APP_URL=https://app.voca.africa
+TENANCY_BASE_DOMAIN=app.voca.africa
+TENANCY_DEFAULT_SLUG=voca
+```
+
+After updating the server environment or deploying configuration changes, run from `homedir/apps/voca/app-src`:
+
+```sh
+php artisan config:clear
+php artisan config:cache
+```
+
+An incorrect or cached `TENANCY_BASE_DOMAIN` can cause the main domain to return `{"message":"Organisation not found."}`. The database must also contain the active `voca` organisation created by the tenancy migration. If the settings are correct and the error remains, check `php artisan migrate:status` and the organisation record before changing any data.

@@ -29,7 +29,7 @@ class FinanceSlipManagementTest extends TestCase
 
     private function url(string $slug, string $path): string
     {
-        return 'http://'.$slug.'.app.voca.co.za'.$path;
+        return 'http://'.$slug.'.app.voca.africa'.$path;
     }
 
     public function test_ministry_member_can_upload_slip_but_cannot_view_finance_dashboard_data(): void

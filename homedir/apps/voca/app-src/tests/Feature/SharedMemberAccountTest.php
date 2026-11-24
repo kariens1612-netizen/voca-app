@@ -16,7 +16,7 @@ class SharedMemberAccountTest extends TestCase
         config(['services.voca_members.url'=>'https://voca.africa','services.voca_members.key'=>str_repeat('x',40)]);
         Http::preventStrayRequests();
     }
-    private function url(string $path): string { return 'http://voca.app.voca.co.za/auth/'.$path; }
+    private function url(string $path): string { return 'http://voca.app.voca.africa/auth/'.$path; }
     private function credentials(): array { return ['email'=>'MEMBER@example.com','password'=>'SharedPassword123']; }
     private function identity(): array { return ['user'=>['id'=>72,'name'=>'Member','email'=>'member@example.com']]; }
     public function test_login_creates_only_a_regular_member_without_copying_password(): void {
@@ -56,7 +56,7 @@ class SharedMemberAccountTest extends TestCase
     }
     public function test_other_tenants_cannot_use_member_login(): void {
         Organisation::create(['name'=>'Other','slug'=>'other','status'=>'active']);
-        $this->postJson('http://other.app.voca.co.za/auth/member-login',$this->credentials())->assertNotFound(); Http::assertNothingSent();
+        $this->postJson('http://other.app.voca.africa/auth/member-login',$this->credentials())->assertNotFound(); Http::assertNothingSent();
     }
     public function test_recovery_uses_website_and_local_login_cannot_bypass_it(): void {
         Http::fake(['*'=>Http::response(['message'=>'Password link sent.'])]);

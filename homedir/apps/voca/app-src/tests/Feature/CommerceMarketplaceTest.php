@@ -52,7 +52,7 @@ class CommerceMarketplaceTest extends TestCase
         DB::table('mshop_price')->insert(['id' => 30, 'siteid' => 'alpha-coffee', 'value' => 95, 'currencyid' => 'ZAR', 'status' => 1]);
         DB::table('mshop_product_list')->insert(['siteid' => 'alpha-coffee', 'parentid' => 10, 'domain' => 'price', 'type' => 'default', 'refid' => '30', 'status' => 1]);
 
-        $this->getJson('http://alpha.app.voca.co.za/api/commerce/marketplace')
+        $this->getJson('http://alpha.app.voca.africa/api/commerce/marketplace')
             ->assertOk()
             ->assertJsonPath('products.0.title', 'Voca Coffee Beans')
             ->assertJsonPath('products.0.ministry.name', 'Coffee Ministry')

@@ -23,7 +23,17 @@ class WhiteLabelTenancyTest extends TestCase
         ], $overrides));
     }
 
-    private function url(string $slug, string $path): string { return 'http://'.$slug.'.app.voca.co.za'.$path; }
+    private function url(string $slug, string $path): string { return 'http://'.$slug.'.app.voca.africa'.$path; }
+
+    public function test_production_base_domain_resolves_default_organisation(): void
+    {
+        $voca = Organisation::where('slug', 'voca')->firstOrFail();
+
+        $this->get('https://app.voca.africa/')->assertOk();
+        $this->getJson('https://app.voca.africa/api/bootstrap')
+            ->assertOk()->assertJsonPath('organisation.id', $voca->id);
+        $this->getJson('https://unrecognised.example/api/bootstrap')->assertNotFound();
+    }
 
     public function test_bootstrap_resolves_independent_brand_and_modules_by_subdomain(): void
     {
