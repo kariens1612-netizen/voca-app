@@ -20,7 +20,7 @@
     "src": "../images/voca/community/tv-conversation.webp"
   },
   "node_modules/@capacitor/app/dist/esm/web.js": {
-    "file": "assets/web-BwUqKZrB.js",
+    "file": "assets/web-BilgJkxy.js",
     "name": "web",
     "src": "node_modules/@capacitor/app/dist/esm/web.js",
     "isDynamicEntry": true,
@@ -32,7 +32,7 @@
     ]
   },
   "node_modules/@capacitor/preferences/dist/esm/web.js": {
-    "file": "assets/web-BwCCv7My.js",
+    "file": "assets/web-DnC4fumn.js",
     "name": "web",
     "src": "node_modules/@capacitor/preferences/dist/esm/web.js",
     "isDynamicEntry": true,
@@ -59,7 +59,7 @@
     ]
   },
   "resources/js/app.js": {
-    "file": "assets/app-CHzrCE8o.js",
+    "file": "assets/app-CQcDxn6p.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,

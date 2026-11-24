@@ -118,7 +118,8 @@ const routes = [
     },
 ];
 
-const insidePages = new Set(['affiliates', 'affiliate-pathway', 'affiliate-profile', 'voca-directory', 'voca-directory-detail', 'bible-study', 'marketplace', 'public-events', 'inspiration', 'inspiration-detail', 'international', 'ministry-detail', 'ministry-hubs']);
+// Website-synced member pages are public, including pathways and biographies.
+const insidePages = new Set(['voca-directory', 'voca-directory-detail', 'bible-study', 'marketplace', 'public-events', 'inspiration', 'inspiration-detail', 'international', 'ministry-detail', 'ministry-hubs']);
 for (const route of routes) {
     if (insidePages.has(route.name)) route.meta = { ...route.meta, requiresAuth: true };
 }
