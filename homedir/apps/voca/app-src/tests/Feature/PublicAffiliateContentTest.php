@@ -41,4 +41,17 @@ class PublicAffiliateContentTest extends TestCase
         $this->assertSame('Example Church', $pathway['sections'][0]['cards'][0]['title']);
     }
 
+    public function test_current_website_biography_layout_is_exported(): void
+    {
+        require_once base_path('integrations/website/app/Services/PublicMemberContent.php');
+        $html = '<header><p>Navigation</p></header><article class="affiliate-profile"><h1>Example Leader</h1><p>Pastor</p><section class="affiliate-profile-about"><h2>About</h2><p>Published biography</p></section><img src="/portrait.jpg"></article>';
+        foreach ([new PublicAffiliateContent, new \App\Services\PublicMemberContent] as $parser) {
+            $sections = $parser->parse($html, 'https://voca.africa')['sections'];
+            $this->assertCount(1, $sections);
+            $this->assertSame('Example Leader', $sections[0]['title']);
+            $this->assertSame(['Pastor', 'Published biography'], $sections[0]['paragraphs']);
+            $this->assertSame('https://voca.africa/portrait.jpg', $sections[0]['images'][0]['src']);
+        }
+    }
+
 }

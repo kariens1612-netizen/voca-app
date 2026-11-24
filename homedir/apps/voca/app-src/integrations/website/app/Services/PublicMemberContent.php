@@ -20,7 +20,7 @@ class PublicMemberContent
             'voca-affiliate-hero', 'voca-affiliate-overview', 'voca-featured-affiliates',
             'voca-affiliate-directory', 'voca-affiliate-types', 'voca-member-world-map',
             'voca-member-group-hero', 'voca-member-group-section',
-        ])).'] | //article['.$class('voca-directory-profile').']';
+        ])).'] | //article['.$class('voca-directory-profile').' or '.$class('affiliate-profile').']';
         foreach ($xpath->query($selector) as $section) {
             $cardSelector = implode(' or ', array_map($class, ['voca-featured-affiliate-card', 'voca-affiliate-card', 'platform-card', 'voca-member-profile-card']));
             $cards = [];
